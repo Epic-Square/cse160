@@ -1,2 +1,2 @@
-# CSE-160
+# cse160
 For cse160 at UCSC
