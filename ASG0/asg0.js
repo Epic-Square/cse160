@@ -89,7 +89,7 @@ function handleDrawOperationEvent() {
     case ARE:
       console.log("Area of the Triangle:", 
                   0.5 * Vector3.cross(v1, v2).magnitude());
-      break;
+      return;
     case MAG:
       console.log("Magnitude v1:", v1.magnitude());
       console.log("Magnitude v2:", v2.magnitude());
