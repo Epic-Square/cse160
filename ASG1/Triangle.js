@@ -4,6 +4,10 @@ class Triangle {
       this.position = [0.0, 0.0, 0.0];
       this.color = [1.0, 1.0, 1.0, 1.0];
       this.size = 10.0;
+      this.draw = false;
+      this.points = [   0.0, 0.0, 
+                        0.0, 0.0, 
+                        0.0, 0.0, ];
     }
 
     render() {
@@ -26,6 +30,19 @@ class Triangle {
                         xy[1],
                         xy[0],
                         xy[1] + d]);
+    }
+
+    renderControl() {
+        var rgba = this.color;
+        var ps = this.points;
+
+        // Pass the position of a point to a_Position variable
+        //gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
+        // Pass the color of a point to u_FragColor variable
+        gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+        // Pass the size of a point to u_Size variable
+        gl.uniform1f(u_Size, 10.0);
+        drawTriangle(ps);
     }
 }
 

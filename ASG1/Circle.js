@@ -5,6 +5,10 @@ class Circle {
       this.color = [1.0, 1.0, 1.0, 1.0];
       this.size = 10.0;
       this.segments = 10;
+      this.draw = false;
+      this.points = [   0.0, 0.0, 
+                        0.0, 0.0, 
+                        0.0, 0.0, ];
     }
 
     render() {

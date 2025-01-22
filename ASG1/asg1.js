@@ -72,6 +72,8 @@ let g_selectedColor = [1.0,0.0,0.0,1.0];
 let g_selectedSize = 10.0;
 let g_selectedType = POINT;
 let g_selectedSegments = 10;
+let g_selectedRot = [ [1.0, 0.0],
+                      [0.0, 1.0]];
 
 function addActionsForHtmlUI() {
   // Button Events
@@ -83,6 +85,18 @@ function addActionsForHtmlUI() {
   */
   document.getElementById('clearButton').onclick = function() { 
     g_shapesList = [];
+    renderAllShapes();
+  };
+  document.getElementById('undo').onclick = function() {
+
+    if(g_shapesList.length > 0) {
+      g_shapesList = g_shapesList.slice(0, g_shapesList.length - 1);
+      renderAllShapes();
+    }
+  };
+  document.getElementById('drawing').onclick = function() {
+    g_shapesList = [];
+    addDrawing();
     renderAllShapes();
   };
   // Shape Type
@@ -117,6 +131,15 @@ function addActionsForHtmlUI() {
   document.getElementById('segSlide').addEventListener('mouseup', function() {
     g_selectedSegments = this.value;
   });
+
+  // A little something extra. A slider for rotations to work on the triangle and the circle.
+  /*
+  document.getElementById('rotSlide').addEventListener('mouseup', function() {
+    const modifier = 1 / (2*Math.PI);
+    g_selectedRot = [ [Math.cos(this.value * modifier), -Math.sin(this.value * modifier)],
+                      [Math.sin(this.value * modifier), Math.cos(this.value * modifier)]];
+  });
+  */
 }
 
 // MAIN
@@ -164,6 +187,7 @@ function click(ev) {
   point.position  = [x, y, 0];
   point.color     = g_selectedColor.slice();
   point.size      = g_selectedSize;
+  point.draw      = false;
 
   g_shapesList.push(point);
   /*
@@ -197,6 +221,108 @@ function renderAllShapes() {
 
   var len = g_shapesList.length;
   for(var i = 0; i < len; i++) {
-    g_shapesList[i].render();
+    if(g_shapesList[i].draw) {
+      g_shapesList[i].renderControl();
+    } else { 
+      g_shapesList[i].render();
+    }
   }
+}
+
+let ps = [];
+function addDrawing() {
+  let s = 1.0/6.0; // scale
+  ps = []; // points
+
+  // Red Box
+  addDrawPoint(0, [.75, 0.0, 0.0, 1.0], [ -5*s, -5*s, 
+                                          5*s, -5*s,
+                                          -5*s, 5*s]);
+  addDrawPoint(1, [0.75, 0.0, 0.0, 1.0], [  5*s, 5*s, 
+                                          -5*s, 5*s,
+                                          5*s, -5*s]);
+
+  // BL
+  addDrawPoint(2, [0.0, 0.0, 0.0, 1.0], [ -4*s, -3.5*s, 
+                                          -3*s, -4*s,
+                                          -3.5*s, -1*s]);
+  addDrawPoint(3, [0.0, 0, 0, 1.0], [ -3*s, -4*s,
+                                      -1*s, -3.5*s,
+                                      -3.5*s, -1*s]);
+  
+  // River
+  addDrawPoint(4, [0.0, 0, 0, 1.0], [ -4*s, 3.5*s,
+                                      2*s, -4*s,
+                                      -3*s, 4*s]);
+  addDrawPoint(5, [0.0, 0, 0, 1.0], [ 2*s, -4*s,
+                                      4.5*s, -2*s,
+                                      -3*s, 4*s]);
+  addDrawPoint(6, [0.0, 0, 0, 1.0], [ 2*s, -4*s,
+                                      4*s, -4*s,
+                                      4.5*s, -2*s]);
+  
+  // TR
+  addDrawPoint(7, [0.0, 0, 0, 1.0], [ 1*s, 3.5*s,
+                                      3.5*s, 2*s,
+                                      3*s, 4*s]);
+  addDrawPoint(8, [0.0, 0, 0, 1.0], [ 3*s, 4*s,
+                                      3.5*s, 2*s,
+                                      4*s, 3.5*s]);
+
+  // LWD: Left Wall Dinks
+  addDrawPoint(9, [0.0, 0, 0, 1.0], [ -5*s, -3*s,
+                                      -4.75*s, -2.25*s,
+                                      -5*s, -2*s]);
+  addDrawPoint(10, [0.0, 0, 0, 1.0], [ -5*s, -1*s,
+                                        -4.75*s, -.55*s,
+                                        -5*s, 0*s]);
+
+  // UWD
+  addDrawPoint(11, [0.0, 0, 0, 1.0], [ -3*s, 5*s,
+                                        -2*s, 4.75*s,
+                                        -1*s, 5*s]);
+  addDrawPoint(12, [0.0, 0, 0, 1.0], [  1*s, 5*s,
+                                        1.25*s, 4.75*s,
+                                        2*s, 5*s]);
+  addDrawPoint(13, [0.0, 0, 0, 1.0], [  1.25*s, 4.75*s,
+                                        2*s, 4.75*s,
+                                        2*s, 5*s]);
+
+  // RWD
+  addDrawPoint(14, [0.0, 0, 0, 1.0], [  5*s, 2*s,
+                                        4.75*s, 1.5*s,
+                                        5*s, 1*s]);
+  addDrawPoint(15, [0.0, 0, 0, 1.0], [  5*s, 1*s,
+                                        4.75*s, -1*s,
+                                        5*s, -1*s]);
+
+  // BWD
+  addDrawPoint(16, [0.0, 0, 0, 1.0], [  4*s, -4.75*s,
+                                        4*s, -5*s,
+                                        5*s, -5*s]);
+  addDrawPoint(17, [.75, 0, 0, 1.0], [  -1*s, -5*s,
+                                        -.75*s, -5.25*s,
+                                        0*s, -5*s]);
+  addDrawPoint(18, [.75, 0, 0, 1.0], [  0*s, -5*s,
+                                        1.25*s, -5.25*s,
+                                        2*s, -5*s]);
+
+  // Last detail
+  addDrawPoint(19, [.75, 0, 0, 1.0], [  -.9*s, 4.9*s,
+                                        0.8*s, 4.9*s,
+                                        0.8*s, 5.2*s]);
+
+
+  
+  for(var i = 0; i < ps.length; i++) {
+    g_shapesList.push(ps[i]);
+  }
+}
+
+function addDrawPoint(i, color, pnts) {
+  ps[i] = new Triangle();
+  ps[i].size = 10.0;
+  ps[i].draw = true;
+  ps[i].color = color;
+  ps[i].points = pnts;
 }
