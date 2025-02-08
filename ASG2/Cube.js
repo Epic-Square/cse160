@@ -23,6 +23,33 @@ class Cube {
         drawTriangle3D([0.0,0.0,0.0, 1.0,1.0,0.0, 1.0,0.0,0.0]);
         drawTriangle3D([0.0,0.0,0.0, 0.0,1.0,0.0, 1.0,1.0,0.0]);
 
-        // Other sides of cube top, bottom, left, right, back
+        // psuedo-lighting
+        gl.uniform4f(u_FragColor, rgba[0]*.9, rgba[1]*.9, rgba[2]*.9, rgba[3]);
+
+        // Top of cube
+        drawTriangle3D([0,1,1, 1,1,0, 1,1,1]);
+        drawTriangle3D([0,1,1, 0,1,0, 1,1,0]);
+
+        // Left of Cube
+        drawTriangle3D([0,0,1, 0,1,0, 0,0,0]);
+        drawTriangle3D([0,0,1, 0,1,1, 0,1,0]);
+
+        // Right of Cube
+        drawTriangle3D([1,0,0, 1,1,1, 1,0,1]);
+        drawTriangle3D([1,0,0, 1,1,0, 1,1,1]);
+
+        // psuedo-lighting: Darker lighting.
+        gl.uniform4f(u_FragColor, rgba[0]*.8, rgba[1]*.8, rgba[2]*.8, rgba[3]);
+
+        // Bottom of Cube
+        drawTriangle3D([0,0,1, 1,0,0, 1,0,1]);
+        drawTriangle3D([0,0,1, 0,0,0, 1,0,0]);
+
+        // psuedo-lighting: Darkest lighting.
+        gl.uniform4f(u_FragColor, rgba[0]*.6, rgba[1]*.6, rgba[2]*.6, rgba[3]);
+
+        // Back of Cube
+        drawTriangle3D([0.0,0.0,1.0, 1.0,1.0,1.0, 1.0,0.0,1.0]);
+        drawTriangle3D([0.0,0.0,1.0, 0.0,1.0,1.0, 1.0,1.0,1.0]);
     }
 }

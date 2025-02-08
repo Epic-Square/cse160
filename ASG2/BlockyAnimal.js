@@ -5,8 +5,9 @@
 var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
   'uniform mat4 u_ModelMatrix;\n' +
+  'uniform mat4 u_GlobalRotateMatrix;\n' +
   'void main() {\n' +
-  '  gl_Position = u_ModelMatrix * a_Position;\n' +
+  '  gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;\n' +
   '}\n';
 
 // Fragment shader program
@@ -34,6 +35,9 @@ function setUpWebGL() {
     console.log('Failed to get the rendering context for WebGL');
     return;
   }
+
+  gl.enable(gl.DEPTH_TEST);
+  //gl.depthFunc(gl.LEQUAL);
 }
 
 function connectVariablesToGLSL() {
@@ -61,6 +65,12 @@ function connectVariablesToGLSL() {
   u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
   if(!u_ModelMatrix) {
     console.log('Failed to get the storage location of u_ModelMatrix');
+  }
+  
+  // Get the storage location of u_GlobalRotateMatrix
+  u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
+  if(!u_GlobalRotateMatrix) {
+    console.log('Failed to get the storage location of u_GlobalRotateMatrix');
   }
 }
 
@@ -124,24 +134,11 @@ function addActionsForHtmlUI() {
     g_selectedColor[2] = this.value/100;
   });
 
-  // Size Slider Events
-  document.getElementById('sizeSlide').addEventListener('mouseup', function() {
-    g_selectedSize = this.value;
+  // Angle Slider Events
+  document.getElementById('angleSlide').addEventListener('mousemove', function() {
+    g_globalAngle = this.value;
+    renderAllShapes();
   });
-
-  // Segment Slider Events
-  document.getElementById('segSlide').addEventListener('mouseup', function() {
-    g_selectedSegments = this.value;
-  });
-
-  // A little something extra. A slider for rotations to work on the triangle and the circle.
-  /*
-  document.getElementById('rotSlide').addEventListener('mouseup', function() {
-    const modifier = 1 / (2*Math.PI);
-    g_selectedRot = [ [Math.cos(this.value * modifier), -Math.sin(this.value * modifier)],
-                      [Math.sin(this.value * modifier), Math.cos(this.value * modifier)]];
-  });
-  */
 }
 
 // MAIN
@@ -149,12 +146,11 @@ function main() {
   
   setUpWebGL();
   connectVariablesToGLSL();
-
   addActionsForHtmlUI();
 
   // Register function (event handler) to be called on a mouse press
-  canvas.onmousedown = click;
-  canvas.onmousemove = function(ev) { if(ev.buttons == 1) click(ev); };
+  //canvas.onmousedown = click;
+  //canvas.onmousemove = function(ev) { if(ev.buttons == 1) click(ev); };
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -222,23 +218,35 @@ function renderAllShapes() {
   // Clear <canvas>
   var startTime = performance.now();
 
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  
- // Draw a test triangle
-  drawTriangle3D([-1.0,0.0,0.0, -0.5,-1.0,0.0, 0.0,0.0,0.0]);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
+  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
   var body = new Cube();
+  // Draw-the-body-cube var body = new Cube();
   body.color = [1.0,0.0,0.0,1.0];
-  body.matrix.translate(-.25, -.5, 0.0);
-  body.matrix.scale(0.5, 1, .5);
+  body.matrix.translate(-.25,-.75, 0.0); 
+  body.matrix.rotate(-5,1,0,0); 
+  body.matrix.scale(0.5, .3, .5); 
   body.render();
-
+  // Draw-a-left-arm
   var leftArm = new Cube();
-  leftArm.color = [1.0,1.0,0.0,1.0];
-  leftArm.matrix.translate(.7, 0, 0.0);
-  leftArm.matrix.rotate(45, 0, 0, 1);
-  leftArm.matrix.scale(.25, .7, .5);
+  leftArm.color = [1,1,0,1]; 
+  leftArm.matrix.setTranslate(0,-.5, 0.0); 
+  leftArm.matrix.rotate(-5,1,0,0);
+  leftArm.matrix.rotate(0,0,0,1); 
+  leftArm.matrix.scale(0.25, .7, .5); 
+  leftArm.matrix.translate(-.5,0,0);
   leftArm.render();
+
+  // Test box
+  var box = new Cube(); 
+  box.color = [1,0,1,1];
+  box.matrix.translate(-.1,.1,.0,0);
+  box.matrix.rotate(-30,1,0,0);
+  box.matrix.scale(.2,.4,.2);
+  box.render();
 
   var duration = performance.now() - startTime;
   sendTextToHTML(" ms: " + Math.floor(duration) + "  fps: " + Math.floor(10000/duration), "performance");
