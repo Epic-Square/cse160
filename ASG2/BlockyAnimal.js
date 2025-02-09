@@ -86,30 +86,39 @@ let g_selectedType = POINT;
 let g_selectedSegments = 10;
 let g_selectedRot = [ [1.0, 0.0],
                       [0.0, 1.0]];
+// feet - front
+let g_globalflRot   = 0;
+let g_globalfrRot   = 0;
+let g_globalflfRot  = 0;
+let g_globalfrfRot  = 0;
+
+// feet - back
+let g_globalblRot   = 0;
+let g_globalbrRot   = 0;
+let g_globalblfRot  = 0;
+let g_globalbrfRot  = 0;
+
+let g_globalAngle = 0;
 
 function addActionsForHtmlUI() {
-  // Button Events
-  /*
-  document.getElementById('green').onclick = function() { 
-    g_selectedColor = [0.0,1.0,0.0,1.0]; 
-  };
-  document.getElementById('red').onclick = function() { g_selectedColor = [1.0,0.0,0.0,1.0]; };
-  */
   document.getElementById('clearButton').onclick = function() { 
     g_shapesList = [];
-    renderAllShapes();
+    renderScene
+();
   };
   document.getElementById('undo').onclick = function() {
 
     if(g_shapesList.length > 0) {
       g_shapesList = g_shapesList.slice(0, g_shapesList.length - 1);
-      renderAllShapes();
+      renderScene
+  ();
     }
   };
   document.getElementById('drawing').onclick = function() {
     g_shapesList = [];
     addDrawing();
-    renderAllShapes();
+    renderScene
+();
   };
   // Shape Type
   document.getElementById('pointButton').onclick = function() {
@@ -130,14 +139,52 @@ function addActionsForHtmlUI() {
   document.getElementById('greenSlide').addEventListener('mouseup', function() {
     g_selectedColor[1] = this.value/100;
   });
-  document.getElementById('blueSlide').addEventListener('mouseup', function() {
-    g_selectedColor[2] = this.value/100;
+
+  // Feet 
+  // front legs
+  document.getElementById('flSlider').addEventListener('mousemove', function() {
+    g_globalflRot = this.value;
+    renderScene();
+  });
+  document.getElementById('frSlider').addEventListener('mousemove', function() {
+    g_globalfrRot = this.value;
+    renderScene();
+  });
+
+  // front feet
+  document.getElementById('flfSlider').addEventListener('mousemove', function() {
+    g_globalflfRot = this.value;
+    renderScene();
+  });
+  document.getElementById('frfSlider').addEventListener('mousemove', function() {
+    g_globalfrfRot = this.value;
+    renderScene();
+  });
+
+  // back legs
+  document.getElementById('blSlider').addEventListener('mousemove', function() {
+    g_globalblRot = this.value;
+    renderScene();
+  });
+  document.getElementById('brSlider').addEventListener('mousemove', function() {
+    g_globalbrRot = this.value;
+    renderScene();
+  });
+
+  // back feet
+  document.getElementById('blfSlider').addEventListener('mousemove', function() {
+    g_globalblfRot = this.value;
+    renderScene();
+  });
+  document.getElementById('brfSlider').addEventListener('mousemove', function() {
+    g_globalbrfRot = this.value;
+    renderScene();
   });
 
   // Angle Slider Events
   document.getElementById('angleSlide').addEventListener('mousemove', function() {
     g_globalAngle = this.value;
-    renderAllShapes();
+    renderScene();
   });
 }
 
@@ -154,9 +201,7 @@ function main() {
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  // Clear <canvas>
-  //gl.clear(gl.COLOR_BUFFER_BIT);
-  renderAllShapes();
+  renderScene();
 }
 
 //var g_points  = [];  // The array for the position of a mouse press
@@ -200,7 +245,7 @@ function click(ev) {
   }
   */
 
-  renderAllShapes();
+  renderScene();
 }
 
 function handleClicks(ev) {
@@ -214,28 +259,138 @@ function handleClicks(ev) {
   return ([x, y]);
 }
 
-function renderAllShapes() {
+function renderScene() {
   // Clear <canvas>
   var startTime = performance.now();
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
+  var globalRotMat = new Matrix4().rotate(-g_globalAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
+  var bodyColor                 = [.1,0.6,0.4,1.0];
+  var footColor                 = [.05,0.4,0.25,1.0];
+  var eyeColor                  = [.85,.85,.5,1.0];
+  var eyeBallColor              = [0.1,0.1,0.1,1];
+
   var body = new Cube();
-  // Draw-the-body-cube var body = new Cube();
-  body.color = [1.0,0.0,0.0,1.0];
-  body.matrix.translate(-.25,-.75, 0.0); 
-  body.matrix.rotate(-5,1,0,0); 
-  body.matrix.scale(0.5, .3, .5); 
+  body.color = bodyColor;
+  //body.matrix.translate(0,0,0);
+  //body.matrix.rotate(-5,1,0,0); 
+  posMid(body); 
   body.render();
+
+  var eye = new Cube();
+  eye.color = eyeColor;
+  eye.matrix.translate(0,0,-.05);
+  var eyeParent = new Matrix4(eye.matrix);
+  eye.matrix.scale(.7,.7,.9);
+  posMid(eye);
+  eye.render();
+
+  var eyeBall = new Cube();
+  eyeBall.color = eyeBallColor;
+  eyeBall.matrix = eyeParent
+  eyeBall.matrix.translate(0,0,-.02); // Displacement
+  eyeBall.matrix.scale(.2,.5,.9);
+  posMid(eyeBall);
+  eyeBall.render();
+
+  var frontRightLeg = new Cube();
+  frontRightLeg.color = bodyColor;
+  frontRightLeg.matrix.translate(-.25,-.2,-.2); // Displacement
+  var frParent = new Matrix4(frontRightLeg.matrix); // Parent
+  frontRightLeg.matrix.rotate(g_globalflRot, 0, 0, 1); // animation
+  frontRightLeg.matrix.rotate(10, 1, 0, 0);
+  frontRightLeg.matrix.rotate(-25, 0, 0, 1);
+  frontRightLeg.matrix.scale(.25, .3, .25);
+  posTop(frontRightLeg);
+  frontRightLeg.render();
+
+  var frontRightFoot = new Cube();
+  frontRightFoot.color = footColor;
+  frontRightFoot.matrix = frParent; // Child
+  frontRightFoot.matrix.rotate(g_globalflRot, 0, 0, 1); // animation leg
+  frontRightFoot.matrix.translate(-.05,-.1, -.025); // Displacement: Remembers parent
+  frontRightFoot.matrix.rotate(-g_globalflfRot, 0, 0, 1); // animation foot
+  frontRightFoot.matrix.scale(.3, .2, .3);
+  posTop(frontRightFoot);
+  frontRightFoot.render();
+
+  var frontLeftLeg = new Cube();
+  frontLeftLeg.color = bodyColor;
+  frontLeftLeg.matrix.translate(.25,-.2,-.2); // Displacement
+  var flParent = new Matrix4(frontLeftLeg.matrix); // Parent
+  frontLeftLeg.matrix.rotate(-g_globalfrRot, 0, 0, 1); // animation leg
+  frontLeftLeg.matrix.rotate(10, 1, 0, 0);
+  frontLeftLeg.matrix.rotate(25, 0, 0, 1);
+  frontLeftLeg.matrix.scale(.25, .3, .25);
+  posTop(frontLeftLeg);
+  frontLeftLeg.render();
+
+  var frontLeftFoot = new Cube();
+  frontLeftFoot.color = footColor;
+  frontLeftFoot.matrix = flParent; // Child
+  frontLeftFoot.matrix.rotate(-g_globalfrRot, 0, 0, 1); // animation leg
+  frontLeftFoot.matrix.translate(.05,-.1, -.025); // Displacement: Remembers parent
+  frontLeftFoot.matrix.rotate(-g_globalfrfRot, 0, 0, 1); // animation foot
+  frontLeftFoot.matrix.scale(.3, .2, .3);
+  posTop(frontLeftFoot);
+  frontLeftFoot.render();
+
+  var backRightLeg = new Cube();
+  backRightLeg.color = bodyColor;
+  backRightLeg.matrix.translate(-.25,-.2,.2); // Displacement
+  var brParent = new Matrix4(backRightLeg.matrix); // Parent
+  backRightLeg.matrix.rotate(-g_globalbrRot, 0, 0, 1); // animation leg
+  backRightLeg.matrix.rotate(-10, 1, 0, 0);
+  backRightLeg.matrix.rotate(-25, 0, 0, 1);
+  backRightLeg.matrix.scale(.25, .3, .25);
+  posTop(backRightLeg);
+  backRightLeg.render();
+
+  var backRightFoot = new Cube();
+  backRightFoot.color = footColor;
+  backRightFoot.matrix = brParent; // Child
+  backRightFoot.matrix.rotate(-g_globalbrRot, 0, 0, 1); // animation leg
+  backRightFoot.matrix.translate(-.05,-.1, .025); // Displacement: Remembers parent
+  backRightFoot.matrix.rotate(-g_globalbrfRot, 0, 0, 1); // animation foot
+  backRightFoot.matrix.rotate(0, 0, 0, 1);
+  backRightFoot.matrix.scale(.3, .2, .3);
+  posTop(backRightFoot);
+  backRightFoot.render();
+
+  var backLeftLeg = new Cube();
+  backLeftLeg.color = bodyColor;
+  backLeftLeg.matrix.translate(.25,-.2,.2); // Displacement
+  var blParent = new Matrix4(backLeftLeg.matrix); // Parent
+  backLeftLeg.matrix.rotate(-g_globalblRot, 0, 0, 1); // animation leg
+  backLeftLeg.matrix.rotate(-10, 1, 0, 0);
+  backLeftLeg.matrix.rotate(25, 0, 0, 1);
+  backLeftLeg.matrix.scale(.25, .3, .25);
+  posTop(backLeftLeg);
+  backLeftLeg.render();
+
+  var backLeftFoot = new Cube();
+  backLeftFoot.color = footColor;
+  backLeftFoot.matrix = blParent; // Child
+  backLeftFoot.matrix.rotate(-g_globalblRot, 0, 0, 1); // animation leg
+  backLeftFoot.matrix.translate(.05,-.1, .025); // Displacement: Remembers parent
+  backLeftFoot.matrix.rotate(-g_globalblfRot, 0, 0, 1); // animation foot
+  backLeftFoot.matrix.rotate(0, 0, 0, 1);
+  backLeftFoot.matrix.scale(.3, .2, .3);
+  posTop(backLeftFoot);
+  backLeftFoot.render();
+  
+
+  /*
   // Draw-a-left-arm
   var leftArm = new Cube();
   leftArm.color = [1,1,0,1]; 
   leftArm.matrix.setTranslate(0,-.5, 0.0); 
   leftArm.matrix.rotate(-5,1,0,0);
   leftArm.matrix.rotate(0,0,0,1); 
+  leftArm.matrix.rotate(-g_globalYellowRot, 0, 0, 1);
   leftArm.matrix.scale(0.25, .7, .5); 
   leftArm.matrix.translate(-.5,0,0);
   leftArm.render();
@@ -247,9 +402,22 @@ function renderAllShapes() {
   box.matrix.rotate(-30,1,0,0);
   box.matrix.scale(.2,.4,.2);
   box.render();
+  */
 
   var duration = performance.now() - startTime;
   sendTextToHTML(" ms: " + Math.floor(duration) + "  fps: " + Math.floor(10000/duration), "performance");
+}
+
+// Final positioning for center.
+function posMid(cube) {
+  cube.matrix.translate(-.25,-.25,-.25);
+  cube.matrix.scale(.5, .5, .5);
+}
+
+// Final positioning for top
+function posTop(cube) {
+  cube.matrix.translate(-.25,-.5,-.25);
+  cube.matrix.scale(.5, .5, .5);
 }
 
 function sendTextToHTML(text, htmlID) {

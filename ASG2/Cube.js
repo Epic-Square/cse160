@@ -6,6 +6,8 @@ class Cube {
       //this.size = 10.0;
       //this.segments = 10;
       this.matrix = new Matrix4();
+      //this.matrix.translate(-.25,-.25,-.25);
+      //this.matrix.scale(.5,.5,.5);
     }
 
     render() {
@@ -41,15 +43,15 @@ class Cube {
         // psuedo-lighting: Darker lighting.
         gl.uniform4f(u_FragColor, rgba[0]*.8, rgba[1]*.8, rgba[2]*.8, rgba[3]);
 
-        // Bottom of Cube
-        drawTriangle3D([0,0,1, 1,0,0, 1,0,1]);
-        drawTriangle3D([0,0,1, 0,0,0, 1,0,0]);
+        // Back of Cube
+        drawTriangle3D([0.0,0.0,1.0, 1.0,1.0,1.0, 1.0,0.0,1.0]);
+        drawTriangle3D([0.0,0.0,1.0, 0.0,1.0,1.0, 1.0,1.0,1.0]);
 
         // psuedo-lighting: Darkest lighting.
         gl.uniform4f(u_FragColor, rgba[0]*.6, rgba[1]*.6, rgba[2]*.6, rgba[3]);
 
-        // Back of Cube
-        drawTriangle3D([0.0,0.0,1.0, 1.0,1.0,1.0, 1.0,0.0,1.0]);
-        drawTriangle3D([0.0,0.0,1.0, 0.0,1.0,1.0, 1.0,1.0,1.0]);
+        // Bottom of Cube
+        drawTriangle3D([0,0,1, 1,0,0, 1,0,1]);
+        drawTriangle3D([0,0,1, 0,0,0, 1,0,0]);
     }
 }
