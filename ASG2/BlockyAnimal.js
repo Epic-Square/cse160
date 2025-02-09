@@ -99,47 +99,12 @@ let g_globalblfRot  = 0;
 let g_globalbrfRot  = 0;
 
 let g_globalAngle = 0;
+let g_globalAnimate = false;
 
 function addActionsForHtmlUI() {
-  document.getElementById('clearButton').onclick = function() { 
-    g_shapesList = [];
-    renderScene
-();
-  };
-  document.getElementById('undo').onclick = function() {
-
-    if(g_shapesList.length > 0) {
-      g_shapesList = g_shapesList.slice(0, g_shapesList.length - 1);
-      renderScene
-  ();
-    }
-  };
-  document.getElementById('drawing').onclick = function() {
-    g_shapesList = [];
-    addDrawing();
-    renderScene
-();
-  };
-  // Shape Type
-  document.getElementById('pointButton').onclick = function() {
-    g_selectedType = POINT;
-  };
-  document.getElementById('triButton').onclick = function() {
-    g_selectedType = TRIANGLE;
+  document.getElementById('animate').onclick = function() {
+    g_globalAnimate = !g_globalAnimate;
   }
-  document.getElementById('circleButton').onclick = function() {
-    g_selectedType = CIRCLE;
-  }
-
-
-  // Slider Events
-  document.getElementById('redSlide').addEventListener('mouseup', function() {
-    g_selectedColor[0] = this.value/100;
-  });
-  document.getElementById('greenSlide').addEventListener('mouseup', function() {
-    g_selectedColor[1] = this.value/100;
-  });
-
   // Feet 
   // front legs
   document.getElementById('flSlider').addEventListener('mousemove', function() {
@@ -195,57 +160,36 @@ function main() {
   connectVariablesToGLSL();
   addActionsForHtmlUI();
 
-  // Register function (event handler) to be called on a mouse press
-  //canvas.onmousedown = click;
-  //canvas.onmousemove = function(ev) { if(ev.buttons == 1) click(ev); };
+  canvas.onmousedown = click;
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  renderScene();
+  //renderScene();
+  requestAnimationFrame(tick);
 }
 
-//var g_points  = [];  // The array for the position of a mouse press
-//var g_colors  = [];  // The array to store the color of a point
-//var g_size    = [];
+var g_startTime = performance.now()/1000.0;
+var g_seconds   = performance.now()/1000.0 - g_startTime;
 
-var g_shapesList = [];
-function click(ev) {
-  
-  // Extract the event click and return it in WebGL coordinates
-  [x,y] = handleClicks(ev);
+function tick() {
 
-  // Store the coordinates to g_points array
-  let point;
-  switch(g_selectedType) {
-    case POINT:
-      point = new Point();
-      break;
-    case TRIANGLE:
-      point = new Triangle();
-      break;
-    case CIRCLE:
-      point = new Circle();
-      point.segments = g_selectedSegments;
-      break;
-  }
-  point.position  = [x, y, 0];
-  point.color     = g_selectedColor.slice();
-  point.size      = g_selectedSize;
-  point.draw      = false;
-
-  g_shapesList.push(point);
-  /*
-  // Store the coordinates to g_points array
-  if (x >= 0.0 && y >= 0.0) {      // First quadrant
-    g_colors.push([1.0, 0.0, 0.0, 1.0]);  // Red
-  } else if (x < 0.0 && y < 0.0) { // Third quadrant
-    g_colors.push([0.0, 1.0, 0.0, 1.0]);  // Green
-  } else {                         // Others
-    g_colors.push([1.0, 1.0, 1.0, 1.0]);  // White
-  }
-  */
+  g_seconds = performance.now()/1000.0 - g_startTime;
+  //console.log(g_seconds);
 
   renderScene();
+
+  requestAnimationFrame(tick);
+}
+
+let isPoked = false;
+let pokeStartTime;
+let isDown = false;
+function click(ev) {
+  if(ev.shiftKey) {
+    pokeStartTime = g_seconds;
+    isDown = false;
+    isPoked = true;
+  }
 }
 
 function handleClicks(ev) {
@@ -273,17 +217,27 @@ function renderScene() {
   var eyeColor                  = [.85,.85,.5,1.0];
   var eyeBallColor              = [0.1,0.1,0.1,1];
 
+  var speed = 10;
+  var time = speed * g_seconds;
+
   var body = new Cube();
   body.color = bodyColor;
-  //body.matrix.translate(0,0,0);
-  //body.matrix.rotate(-5,1,0,0); 
+  if(g_globalAnimate) {
+    body.matrix.translate(0, .01 * Math.sin(time), 0);
+  }
+  var bodyParent = new Matrix4(body.matrix);
   posMid(body); 
   body.render();
 
   var eye = new Cube();
   eye.color = eyeColor;
+  eye.matrix = bodyParent;
+  if(g_globalAnimate) {
+    eye.matrix.translate(0, .01 * Math.sin(time), 0);
+  }
   eye.matrix.translate(0,0,-.05);
   var eyeParent = new Matrix4(eye.matrix);
+  var eyeLidParent = new Matrix4(eyeParent);
   eye.matrix.scale(.7,.7,.9);
   posMid(eye);
   eye.render();
@@ -299,8 +253,12 @@ function renderScene() {
   var frontRightLeg = new Cube();
   frontRightLeg.color = bodyColor;
   frontRightLeg.matrix.translate(-.25,-.2,-.2); // Displacement
+  if(g_globalAnimate) {
+    frontRightLeg.matrix.rotate(45*Math.cos(time), 0, 0, 1);
+  } else {
+    frontRightLeg.matrix.rotate(g_globalfrRot, 0, 0, 1); // animation
+  }
   var frParent = new Matrix4(frontRightLeg.matrix); // Parent
-  frontRightLeg.matrix.rotate(g_globalflRot, 0, 0, 1); // animation
   frontRightLeg.matrix.rotate(10, 1, 0, 0);
   frontRightLeg.matrix.rotate(-25, 0, 0, 1);
   frontRightLeg.matrix.scale(.25, .3, .25);
@@ -310,9 +268,12 @@ function renderScene() {
   var frontRightFoot = new Cube();
   frontRightFoot.color = footColor;
   frontRightFoot.matrix = frParent; // Child
-  frontRightFoot.matrix.rotate(g_globalflRot, 0, 0, 1); // animation leg
   frontRightFoot.matrix.translate(-.05,-.1, -.025); // Displacement: Remembers parent
-  frontRightFoot.matrix.rotate(-g_globalflfRot, 0, 0, 1); // animation foot
+  if(g_globalAnimate) {
+    frontRightFoot.matrix.rotate(-45*Math.cos(time), 0, 0, 1);
+  } else {
+    frontRightFoot.matrix.rotate(g_globalfrfRot, 0, 0, 1); // animation foot
+  }
   frontRightFoot.matrix.scale(.3, .2, .3);
   posTop(frontRightFoot);
   frontRightFoot.render();
@@ -320,8 +281,12 @@ function renderScene() {
   var frontLeftLeg = new Cube();
   frontLeftLeg.color = bodyColor;
   frontLeftLeg.matrix.translate(.25,-.2,-.2); // Displacement
+  if(g_globalAnimate) {
+    frontLeftLeg.matrix.rotate(45*Math.sin(time), 0, 0, 1);
+  } else {
+    frontLeftLeg.matrix.rotate(g_globalflRot, 0, 0, 1); // animation leg
+  }
   var flParent = new Matrix4(frontLeftLeg.matrix); // Parent
-  frontLeftLeg.matrix.rotate(-g_globalfrRot, 0, 0, 1); // animation leg
   frontLeftLeg.matrix.rotate(10, 1, 0, 0);
   frontLeftLeg.matrix.rotate(25, 0, 0, 1);
   frontLeftLeg.matrix.scale(.25, .3, .25);
@@ -331,9 +296,12 @@ function renderScene() {
   var frontLeftFoot = new Cube();
   frontLeftFoot.color = footColor;
   frontLeftFoot.matrix = flParent; // Child
-  frontLeftFoot.matrix.rotate(-g_globalfrRot, 0, 0, 1); // animation leg
   frontLeftFoot.matrix.translate(.05,-.1, -.025); // Displacement: Remembers parent
-  frontLeftFoot.matrix.rotate(-g_globalfrfRot, 0, 0, 1); // animation foot
+  if(g_globalAnimate) {
+    frontLeftFoot.matrix.rotate(-45*Math.sin(time), 0, 0, 1);
+  } else {
+    frontLeftFoot.matrix.rotate(g_globalflfRot, 0, 0, 1); // animation foot
+  }
   frontLeftFoot.matrix.scale(.3, .2, .3);
   posTop(frontLeftFoot);
   frontLeftFoot.render();
@@ -341,8 +309,12 @@ function renderScene() {
   var backRightLeg = new Cube();
   backRightLeg.color = bodyColor;
   backRightLeg.matrix.translate(-.25,-.2,.2); // Displacement
+  if(g_globalAnimate) {
+    backRightLeg.matrix.rotate(45*Math.sin(time), 0, 0, 1);
+  } else {
+    backRightLeg.matrix.rotate(g_globalbrRot, 0, 0, 1); // animation leg
+  }
   var brParent = new Matrix4(backRightLeg.matrix); // Parent
-  backRightLeg.matrix.rotate(-g_globalbrRot, 0, 0, 1); // animation leg
   backRightLeg.matrix.rotate(-10, 1, 0, 0);
   backRightLeg.matrix.rotate(-25, 0, 0, 1);
   backRightLeg.matrix.scale(.25, .3, .25);
@@ -352,9 +324,12 @@ function renderScene() {
   var backRightFoot = new Cube();
   backRightFoot.color = footColor;
   backRightFoot.matrix = brParent; // Child
-  backRightFoot.matrix.rotate(-g_globalbrRot, 0, 0, 1); // animation leg
   backRightFoot.matrix.translate(-.05,-.1, .025); // Displacement: Remembers parent
-  backRightFoot.matrix.rotate(-g_globalbrfRot, 0, 0, 1); // animation foot
+  if(g_globalAnimate) {
+    backRightFoot.matrix.rotate(-45*Math.sin(time), 0, 0, 1);
+  } else {
+    backRightFoot.matrix.rotate(g_globalbrfRot, 0, 0, 1); // animation foot
+  }
   backRightFoot.matrix.rotate(0, 0, 0, 1);
   backRightFoot.matrix.scale(.3, .2, .3);
   posTop(backRightFoot);
@@ -363,8 +338,12 @@ function renderScene() {
   var backLeftLeg = new Cube();
   backLeftLeg.color = bodyColor;
   backLeftLeg.matrix.translate(.25,-.2,.2); // Displacement
+  if(g_globalAnimate) {
+    backLeftLeg.matrix.rotate(45*Math.cos(time), 0, 0, 1);
+  } else {
+    backLeftLeg.matrix.rotate(g_globalblRot, 0, 0, 1); // animation leg
+  }
   var blParent = new Matrix4(backLeftLeg.matrix); // Parent
-  backLeftLeg.matrix.rotate(-g_globalblRot, 0, 0, 1); // animation leg
   backLeftLeg.matrix.rotate(-10, 1, 0, 0);
   backLeftLeg.matrix.rotate(25, 0, 0, 1);
   backLeftLeg.matrix.scale(.25, .3, .25);
@@ -374,35 +353,36 @@ function renderScene() {
   var backLeftFoot = new Cube();
   backLeftFoot.color = footColor;
   backLeftFoot.matrix = blParent; // Child
-  backLeftFoot.matrix.rotate(-g_globalblRot, 0, 0, 1); // animation leg
   backLeftFoot.matrix.translate(.05,-.1, .025); // Displacement: Remembers parent
-  backLeftFoot.matrix.rotate(-g_globalblfRot, 0, 0, 1); // animation foot
+  if(g_globalAnimate) {
+    backLeftFoot.matrix.rotate(-45*Math.cos(time), 0, 0, 1);
+  } else {
+    backLeftFoot.matrix.rotate(g_globalblfRot, 0, 0, 1); // animation foot
+  }
   backLeftFoot.matrix.rotate(0, 0, 0, 1);
   backLeftFoot.matrix.scale(.3, .2, .3);
   posTop(backLeftFoot);
   backLeftFoot.render();
-  
 
-  /*
-  // Draw-a-left-arm
-  var leftArm = new Cube();
-  leftArm.color = [1,1,0,1]; 
-  leftArm.matrix.setTranslate(0,-.5, 0.0); 
-  leftArm.matrix.rotate(-5,1,0,0);
-  leftArm.matrix.rotate(0,0,0,1); 
-  leftArm.matrix.rotate(-g_globalYellowRot, 0, 0, 1);
-  leftArm.matrix.scale(0.25, .7, .5); 
-  leftArm.matrix.translate(-.5,0,0);
-  leftArm.render();
+  // Poke animation
+  var eyeLid = new Cube();
+  if(isPoked && !isDown) {
+    eyeLid.color = bodyColor;
+    eyeLid.matrix = eyeLidParent;
+    eyeLid.matrix.translate(0,.2,-.03);
+    var eyeLidLength = 11 * (g_seconds - pokeStartTime);
+    eyeLid.matrix.scale(.71, eyeLidLength,.91);
+    posTop(eyeLid);
+    if(g_seconds - pokeStartTime > 1 || eyeLidLength > .8) {
+      isDown = true;
+    }
+    eyeLid.render();
+  }
 
-  // Test box
-  var box = new Cube(); 
-  box.color = [1,0,1,1];
-  box.matrix.translate(-.1,.1,.0,0);
-  box.matrix.rotate(-30,1,0,0);
-  box.matrix.scale(.2,.4,.2);
-  box.render();
-  */
+  if(isDown && isPoked) {
+    isPoked = false;
+    isDown = false;
+  }
 
   var duration = performance.now() - startTime;
   sendTextToHTML(" ms: " + Math.floor(duration) + "  fps: " + Math.floor(10000/duration), "performance");
