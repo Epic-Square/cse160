@@ -32,13 +32,43 @@ class Morb {
          */
         this.speed = 10;
         this.animate = false;
+        var time = speed * g_seconds;
         /**
          * Creating all reference points.
          */
         this.origin = new Matrix4();
-        this.frlegParent = new Matrix4(this.origin);
-        this.frlegParent
-        var time = speed * g_seconds;
+
+        /**
+         * Front Right Appendage
+         */
+        this.frlParent = new Matrix4(this.origin);
+        this.frlParent.translate(-0.25, -0.2,-0.2);
+        this.frffParent = new Matrix4(this.frlParent);
+        this.frffParent.translate(-0.05, -0.1, -0.25);
+
+        /**
+         * Front Lefft Appendage
+         */
+        this.fllParent = new Matrix4(this.origin);
+        this.fllParent.translate(0.25, -0.2, -0.2);
+        this.flfParent = new Matrix4(this.fllParent);
+        this.flfParent.translate(0.05, -0.1, -0.025);
+
+        /**
+         * Back Right Appendage
+         */
+        this.brlParent = new Matrix4(this.origin);
+        this.brlParent.translate(-0.25, -0.2, 0.2);
+        this.brfParent = new Matrix4(this.brlParent);
+        this.brfParent.translate(-0.05, -0.1, 0.025);
+
+        /**
+         * Back Left Appendage
+         */
+        this.bllParent = new Matrix4(this.origin);
+        this.bllParent.translate(0.25, -0.2, 0.2);
+        this.blfParent = new Matrix4(this.bllParent);
+        this.blfParent.translate(0.05, -0.1, 0.025);
 
         /**
          * Set up of the body parts.
