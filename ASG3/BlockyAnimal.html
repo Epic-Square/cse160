@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Change a point color</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <p>
+<!--
+    <button type="button" id="green">Green</button>
+    <button type="button" id="red">Red</button>
+-->
+    <div id="performance">ms:  fps:</div>
+
+    <br>
+    Animation <button type="button" id="animate">Toggle</button>
+    <p>
+    FR Leg <input type="range" min="-90" max="90" value="0" class="slider" id="frSlider">
+    FR Foot <input type="range" min="-90" max="90" value="0" class="slider" id="frfSlider">
+    <p>
+    FL Leg <input type="range" min="-90" max="90" value="0" class="slider" id="flSlider">
+    FL Foot <input type="range" min="-90" max="90" value="0" class="slider" id="flfSlider">
+    <p>
+    BR Leg <input type="range" min="-90" max="90" value="0" class="slider" id="brSlider">
+    BR Foot <input type="range" min="-90" max="90" value="0" class="slider" id="brfSlider">
+    <p>
+    BL Leg <input type="range" min="-90" max="90" value="0" class="slider" id="blSlider">
+    BL Foot <input type="range" min="-90" max="90" value="0" class="slider" id="blfSlider">
+    <p>
+    
+    Camera Angle <input type="range" min="-180" max="179" value="0" class="slider" id="angleSlide">
+    <p>
+    This is my reference `inspiration`. This is a Morb. It is a creature from the game Oxygen Not Included.
+    <p>
+    <img src="morb.gif"> 
+    <p>
+    One challenge with modelling this is that it only exists as a 2D creature. There doesn't exist any 3D models in the game. Additionally, it is very hard to parse how the legs are actually supposed to work as well as how to nicely animate them.
+<!--
+    <p>
+    Rotation <input type="range" min="0" max="7" value="0" class="slider" id="rotSlide">
+-->
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix-cse160.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Point.js"></script>
+    <script src="Cube.js"></script>
+    <script src="BlockyAnimal.js"></script>
+  </body>
+</html>
