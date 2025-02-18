@@ -3,9 +3,14 @@
 // ColoredPoint.js (c) 2012 matsuda
 // Vertex shader program
 var VSHADER_SOURCE =
+  'precision meduimp float;\n' +
   'attribute vec4 a_Position;\n' +
+  'attribute vec2 a_UV;\n' +
+  'varying vec2 v_UV;\n' +
   'uniform mat4 u_ModelMatrix;\n' +
   'uniform mat4 u_GlobalRotateMatrix;\n' +
+  'uniform mat4 u_ViewMatrix;\n' +
+  'uniform mat4 u_ProjectionMatrix;\n' +
   'void main() {\n' +
   '  gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;\n' +
   '}\n';
@@ -13,9 +18,13 @@ var VSHADER_SOURCE =
 // Fragment shader program
 var FSHADER_SOURCE =
   'precision mediump float;\n' +
-  'uniform vec4 u_FragColor;\n' +  // uniform
+  'varying vec2 v_UV;\n' +
+  'uniform vec4 u_FragColor;\n' +
+  'uniform sampler2D u_Sampler0;\n' +
   'void main() {\n' +
   '  gl_FragColor = u_FragColor;\n' +
+  '  //gl_FragColor = vec4(v_UV, 0.0, 1.0);\n' +
+  '  gl_FragColor = texture2D(u_Sampler0, v_UV);\n' +
   '}\n';
 
 let canvas;
@@ -53,7 +62,37 @@ function connectVariablesToGLSL() {
     console.log('Failed to get the storage location of a_Position');
     return;
   }
+  // Get the storage location of a_UV
+  a_UV = gl.getAttribLocation(gl.program, 'a_UV');
+  if (a_UV < 0) {
+    console.log('Failed to get the storage location of a_UV');
+    return;
+  }
+  // Get the storage location of u_ViewMatrix
+  u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+  if (!u_ViewMatrix) {
+    console.log('Failed to get the storage location of u_ViewMatrix');
+    return;
+  }
+  // Get the storage location of u_Sampler0
+  u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
+  if (!u_Sampler0) {
+    console.log('Failed to get the storage location of u_Sampler0');
+    return;
+  }
+  // Get the storage location of v_UV
+  v_UV = gl.getAttribLocation(gl.program, 'v_UV');
+  if (v_UV < 0) {
+    console.log('Failed to get the storage location of v_UV');
+    return;
+  }
 
+  // Get the storage location of u_ProjectionMatrix
+  u_ProjectionMatrix = gl.getUniformLocation(gl.program, 'u_ProjectionMatrix');
+  if (!u_ProjectionMatrix) {
+    console.log('Failed to get the storage location of u_ProjectionMatrix');
+    return;
+  }
   // Get the storage location of u_FragColor
   u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
   if (!u_FragColor) {
@@ -80,72 +119,18 @@ const TRIANGLE = 1;
 const CIRCLE = 2;
 
 // UI Elements
-// NA atm
-
-// feet - front
-let g_globalflRot   = 0;
-let g_globalfrRot   = 0;
-let g_globalflfRot  = 0;
-let g_globalfrfRot  = 0;
-
-// feet - back
-let g_globalblRot   = 0;
-let g_globalbrRot   = 0;
-let g_globalblfRot  = 0;
-let g_globalbrfRot  = 0;
-
-let g_globalAngle = 0;
 let g_globalAnimate = false;
+let g_globalAngle = 0;
 
 function addActionsForHtmlUI() {
   document.getElementById('animate').onclick = function() {
     g_globalAnimate = !g_globalAnimate;
   }
-  // Feet 
-  // front legs
-  document.getElementById('flSlider').addEventListener('mousemove', function() {
-    g_globalflRot = this.value;
-    renderScene();
-  });
-  document.getElementById('frSlider').addEventListener('mousemove', function() {
-    g_globalfrRot = this.value;
-    renderScene();
-  });
-
-  // front feet
-  document.getElementById('flfSlider').addEventListener('mousemove', function() {
-    g_globalflfRot = this.value;
-    renderScene();
-  });
-  document.getElementById('frfSlider').addEventListener('mousemove', function() {
-    g_globalfrfRot = this.value;
-    renderScene();
-  });
-
-  // back legs
-  document.getElementById('blSlider').addEventListener('mousemove', function() {
-    g_globalblRot = this.value;
-    renderScene();
-  });
-  document.getElementById('brSlider').addEventListener('mousemove', function() {
-    g_globalbrRot = this.value;
-    renderScene();
-  });
-
-  // back feet
-  document.getElementById('blfSlider').addEventListener('mousemove', function() {
-    g_globalblfRot = this.value;
-    renderScene();
-  });
-  document.getElementById('brfSlider').addEventListener('mousemove', function() {
-    g_globalbrfRot = this.value;
-    renderScene();
-  });
 
   // Angle Slider Events
   document.getElementById('angleSlide').addEventListener('mousemove', function() {
     g_globalAngle = this.value;
-    renderScene();
+    //renderScene();
   });
 }
 
@@ -160,7 +145,6 @@ function main() {
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  //renderScene();
   requestAnimationFrame(tick);
 }
 
@@ -207,7 +191,7 @@ function renderScene() {
 
   var morb = new Morb();
   morb.render();
-  
+
   var globalRotMat = new Matrix4().rotate(-g_globalAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
