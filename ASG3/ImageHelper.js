@@ -1,4 +1,4 @@
-function initTextures(gl, n) {
+function initTextures(n) {
     var texture = gl.createTexture();   // Create a texture object
     if (!texture) {
       console.log('Failed to create the texture object');
@@ -6,9 +6,9 @@ function initTextures(gl, n) {
     }
 
     // Get the storage location of u_Sampler
-    var u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
-    if (!u_Sampler) {
-      console.log('Failed to get the storage location of u_Sampler');
+    var u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
+    if (!u_Sampler0) {
+      console.log('Failed to get the storage location of u_Sampler0');
       return false;
     }
     var image = new Image();  // Create the image object
@@ -18,14 +18,14 @@ function initTextures(gl, n) {
     }
 
     // Register the event handler to be called on loading an image
-    image.onload = function(){ loadTexture(gl, n, texture, u_Sampler, image); };
+    image.onload = function(){ loadTexture(n, texture, u_Sampler0, image); };
     // Tell the browser to load an image
-    image.src = 'sky.jpg';
+    image.src = 'textures/uv_128_128.png';
 
     return true;
 }
 
-function loadTexture(gl, n, texture, u_Sampler, image) {
+function loadTexture(n, texture, u_Sampler, image) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
     // Enable texture unit0
     gl.activeTexture(gl.TEXTURE0);

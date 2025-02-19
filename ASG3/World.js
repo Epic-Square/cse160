@@ -3,7 +3,7 @@
 // ColoredPoint.js (c) 2012 matsuda
 // Vertex shader program
 var VSHADER_SOURCE =
-  'precision meduimp float;\n' +
+  'precision mediump float;\n' +
   'attribute vec4 a_Position;\n' +
   'attribute vec2 a_UV;\n' +
   'varying vec2 v_UV;\n' +
@@ -12,7 +12,12 @@ var VSHADER_SOURCE =
   'uniform mat4 u_ViewMatrix;\n' +
   'uniform mat4 u_ProjectionMatrix;\n' +
   'void main() {\n' +
-  '  gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;\n' +
+  '  gl_Position = u_ProjectionMatrix * u_ViewMatrix \n' +
+  '              * u_GlobalRotateMatrix * u_ModelMatrix \n' + 
+  '              * a_Position;\n' +
+  '  gl_Position = u_GlobalRotateMatrix * u_ModelMatrix \n' + 
+  '              * a_Position;\n' +
+  '  v_UV = a_UV;\n' +
   '}\n';
 
 // Fragment shader program
@@ -80,12 +85,6 @@ function connectVariablesToGLSL() {
     console.log('Failed to get the storage location of u_Sampler0');
     return;
   }
-  // Get the storage location of v_UV
-  v_UV = gl.getAttribLocation(gl.program, 'v_UV');
-  if (v_UV < 0) {
-    console.log('Failed to get the storage location of v_UV');
-    return;
-  }
 
   // Get the storage location of u_ProjectionMatrix
   u_ProjectionMatrix = gl.getUniformLocation(gl.program, 'u_ProjectionMatrix');
@@ -141,6 +140,9 @@ function main() {
   connectVariablesToGLSL();
   addActionsForHtmlUI();
 
+  // Initialize the texture.
+  initTextures(0);
+
   canvas.onmousedown = click;
 
   // Specify the color for clearing <canvas>
@@ -189,26 +191,21 @@ function renderScene() {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  var morb = new Morb();
-  morb.render();
-
   var globalRotMat = new Matrix4().rotate(-g_globalAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
+  //var morb = new Morb();
+  //morb.render();
+  var cube = new Cube();
+  cube.color = [1.0, 0.0, 0.0, 1.0];
+  cube.matrix.rotate(45, 0, 0, 1);
+  cube.matrix.scale(.85, .85, .85);
+  cube.matrix.translate(-.5, -.5, -.5);
+  cube.render();
+
+
   var duration = performance.now() - startTime;
   sendTextToHTML(" ms: " + Math.floor(duration) + "  fps: " + Math.floor(10000/duration), "performance");
-}
-
-// Final positioning for center.
-function posMid(cube) {
-  cube.matrix.translate(-.25,-.25,-.25);
-  cube.matrix.scale(.5, .5, .5);
-}
-
-// Final positioning for top
-function posTop(cube) {
-  cube.matrix.translate(-.25,-.5,-.25);
-  cube.matrix.scale(.5, .5, .5);
 }
 
 function sendTextToHTML(text, htmlID) {
