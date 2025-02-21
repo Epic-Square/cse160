@@ -187,17 +187,23 @@ function click(ev) {
 
 var isKeyDown = false;
 var keys     = {}; // dictionary of keys
+var numKeysDown = 0;
 function keyDown(ev) {
   keys[ev.key] = true;
-  isKeyDown = true;
+  numKeysDown++;
+  if(numKeysDown > 0)
+    isKeyDown = true;
 
   //console.log(ev.keyDown, g_eye[0]);
   //console.log("key down!");
 }
 
 function keyUp(ev) {
-  isKeyDown = false;
-  keys[ev.key] = false; // Don't know if this is necessary
+  console.log(ev.key);
+  keys[ev.key] = false;
+  numKeysDown--;
+  if(numKeysDown <= 0)
+    isKeyDown = false;
 
   //console.log("key up!");
 }
