@@ -20,8 +20,8 @@ function initTextures(n) {
     // Register the event handler to be called on loading an image
     image.onload = function(){ loadTexture(n, texture, u_Sampler0, image); };
     // Tell the browser to load an image
-    //image.src = 'textures/bald_man.png';
-    image.src = 'textures/uv_128_128.png';
+    image.src = 'textures/bald_man.png';
+    //image.src = 'textures/uv_128_128.png';
 
     return true;
 }
