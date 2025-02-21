@@ -15,6 +15,8 @@ var VSHADER_SOURCE =
   '  gl_Position = u_ProjectionMatrix * u_ViewMatrix \n' +
   '              * u_GlobalRotateMatrix * u_ModelMatrix \n' + 
   '              * a_Position;\n' +
+  //'  gl_Position = u_GlobalRotateMatrix * u_ModelMatrix \n' + 
+  //'              * a_Position;' +
   '  v_UV = a_UV;\n' +
   '}\n';
 
@@ -32,9 +34,9 @@ var FSHADER_SOURCE =
 
 let canvas;
 let gl;
-let a_Position;
-let u_FragColor;
-let u_Size;
+//let a_Position;
+//let u_FragColor;
+//let u_Size;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -149,7 +151,7 @@ function main() {
   //document.addEventListener('keyup', keyUp);
 
   // Specify the color for clearing <canvas>
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.0, 0.0, 0.3, 1.0);
   requestAnimationFrame(tick);
 }
 
@@ -200,19 +202,19 @@ function handleKey() {
   }
 
   if(keys['w']) {
-    g_eye[2] += 0.1;
+    g_eye[2] += duration * 0.2;
   }
   if(keys['s']) {
-    g_eye[2] -= 0.1;
+    g_eye[2] -= duration * 0.2;
   }
   if(keys['a']) {
-    g_eye[0] += 0.1;
+    g_eye[0] -= duration * 0.2;
   }
   if(keys['d']) {
-    g_eye[0] -= 0.1;
+    g_eye[0] += duration * 0.2;
   }
 }
-
+var duration;
 function handleClicks(ev) {
   var x = ev.clientX; // x coordinate of a mouse pointer
   var y = ev.clientY; // y coordinate of a mouse pointer
@@ -224,9 +226,15 @@ function handleClicks(ev) {
   return ([x, y]);
 }
 
-var g_eye = [0, 0, -1];
-var g_at  = [0, 0, 0];
+var g_eye = [0, .5, -1];
+var g_at  = [0, .5, 0];
 var g_up  = [0, 1, 0];
+
+// Define the plane
+var g_plane = new Cube();
+g_plane.matrix.scale(8, 1, 8);
+g_plane.matrix.translate(-.5, -1, -.5);
+
 function renderScene() {
   // Clear <canvas>
   var startTime = performance.now();
@@ -236,7 +244,7 @@ function renderScene() {
   // Set the matrix to be used for to set the camera view
   handleKey();
   var projMat = new Matrix4();
-  projMat.setPerspective(60, canvas.width/canvas.height, .1, 100);
+  projMat.setPerspective(60, -canvas.width/canvas.height, 0.1, 100);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
   // Set the matrix to be used for to set the view matrix
@@ -254,13 +262,14 @@ function renderScene() {
   //morb.render();
   var cube = new Cube();
   cube.color = [1.0, 0.0, 0.0, 1.0];
-  cube.matrix.rotate(45, 0, 0, 1);
-  cube.matrix.scale(.85, .85, .85);
-  cube.matrix.translate(-.5, -.5, -.5);
+  //cube.matrix.rotate(45, 0, 0, 1);
+  //cube.matrix.scale(1, 1, 1);
+  cube.matrix.translate(-.5, 0, -.5);
   cube.render();
 
+  g_plane.render();
 
-  var duration = performance.now() - startTime;
+  duration = performance.now() - startTime;
   sendTextToHTML(" ms: " + Math.floor(duration) + "  fps: " + Math.floor(10000/duration), "performance");
 }
 
