@@ -5,6 +5,7 @@ class Cube {
       this.color = [1.0, 1.0, 1.0, 1.0];
       this.matrix = new Matrix4();
       //this.buffer = null;
+      this.textureChoice = 0.0;
     }
 
     render() {
@@ -14,6 +15,8 @@ class Cube {
 
         // Pass the color of a point to u_FragColor variable
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+
+        gl.uniform1f(u_text, this.textureChoice);
 
         // Pass the Matrix to u_ModelMatrix attribute
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
@@ -27,7 +30,7 @@ class Cube {
           [0,0, 0,1, 1,1]);
 
         // psuedo-lighting
-        gl.uniform4f(u_FragColor, rgba[0]*.9, rgba[1]*.9, rgba[2]*.9, rgba[3]);
+        gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
 
         // Top of cube
         drawTriangle3DUV(
@@ -36,6 +39,9 @@ class Cube {
         drawTriangle3DUV(
           [0,1,0, 0,1,1, 1,1,1],
           [0,0, 0,1, 1,1]);
+        
+        // pseudo-lighting
+        gl.uniform4f(u_FragColor, rgba[0]*.9, rgba[1]*.9, rgba[2]*.9, rgba[3]);
 
         // Left of Cube
         drawTriangle3DUV(

@@ -26,10 +26,16 @@ var FSHADER_SOURCE =
   'varying vec2 v_UV;\n' +
   'uniform vec4 u_FragColor;\n' +
   'uniform sampler2D u_Sampler0;\n' +
+  'uniform sampler2D u_Sampler1;\n' +
+  'uniform float u_text;\n' +
   'void main() {\n' +
-  '  gl_FragColor = u_FragColor;\n' +
-  '  //gl_FragColor = vec4(v_UV, 0.0, 1.0);\n' +
-  '  gl_FragColor = texture2D(u_Sampler0, v_UV);\n' +
+  '  if(u_text == 0.0) {\n' +
+  '     gl_FragColor = u_FragColor;\n' +
+  '  } else if(u_text == 1.0) {\n' +
+  '     gl_FragColor = texture2D(u_Sampler0, v_UV);\n' +
+  '  } else if(u_text == 2.0) {\n' +
+  '     gl_FragColor = texture2D(u_Sampler1, v_UV);\n' +
+  '  }\n' +
   '}\n';
 
 let canvas;
@@ -79,12 +85,6 @@ function connectVariablesToGLSL() {
     console.log('Failed to get the storage location of u_ViewMatrix');
     return;
   }
-  // Get the storage location of u_Sampler0
-  u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
-  if (!u_Sampler0) {
-    console.log('Failed to get the storage location of u_Sampler0');
-    return;
-  }
 
   // Get the storage location of u_ProjectionMatrix
   u_ProjectionMatrix = gl.getUniformLocation(gl.program, 'u_ProjectionMatrix');
@@ -109,6 +109,11 @@ function connectVariablesToGLSL() {
   u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
   if(!u_GlobalRotateMatrix) {
     console.log('Failed to get the storage location of u_GlobalRotateMatrix');
+  }
+
+  u_text = gl.getUniformLocation(gl.program, 'u_text');
+  if(!u_text) {
+    console.log('Failed to get the storage location of u_text');
   }
 }
 
@@ -142,6 +147,7 @@ function main() {
 
   // Initialize the texture.
   initTextures(0);
+  initTextures(1);
 
   canvas.onmousedown = click;
   console.log(document);
@@ -226,13 +232,14 @@ function handleClicks(ev) {
   return ([x, y]);
 }
 
-var g_eye = [0, .5, -1];
+var g_eye = [0, .5, -3];
 var g_at  = [0, .5, 0];
 var g_up  = [0, 1, 0];
 
 // Define the plane
 var g_plane = new Cube();
-g_plane.matrix.scale(8, 1, 8);
+g_plane.textureChoice = 2.0;
+g_plane.matrix.scale(32, 32, 32);
 g_plane.matrix.translate(-.5, -1, -.5);
 
 function renderScene() {
@@ -244,7 +251,7 @@ function renderScene() {
   // Set the matrix to be used for to set the camera view
   handleKey();
   var projMat = new Matrix4();
-  projMat.setPerspective(60, -canvas.width/canvas.height, 0.1, 100);
+  projMat.setPerspective(60, -canvas.width/canvas.height, 0.1, 1000000);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
   // Set the matrix to be used for to set the view matrix
@@ -262,6 +269,7 @@ function renderScene() {
   //morb.render();
   var cube = new Cube();
   cube.color = [1.0, 0.0, 0.0, 1.0];
+  cube.textureChoice = 1.0;
   //cube.matrix.rotate(45, 0, 0, 1);
   //cube.matrix.scale(1, 1, 1);
   cube.matrix.translate(-.5, 0, -.5);
@@ -280,102 +288,4 @@ function sendTextToHTML(text, htmlID) {
     return;
   }
   htmlElm.innerHTML = text;
-}
-
-let ps = [];
-function addDrawing() {
-  let s = 1.0/6.0; // scale
-  ps = []; // points
-
-  // Red Box
-  addDrawPoint(0, [.75, 0.0, 0.0, 1.0], [ -5*s, -5*s, 
-                                          5*s, -5*s,
-                                          -5*s, 5*s]);
-  addDrawPoint(1, [0.75, 0.0, 0.0, 1.0], [  5*s, 5*s, 
-                                          -5*s, 5*s,
-                                          5*s, -5*s]);
-
-  // BL
-  addDrawPoint(2, [0.0, 0.0, 0.0, 1.0], [ -4*s, -3.5*s, 
-                                          -3*s, -4*s,
-                                          -3.5*s, -1*s]);
-  addDrawPoint(3, [0.0, 0, 0, 1.0], [ -3*s, -4*s,
-                                      -1*s, -3.5*s,
-                                      -3.5*s, -1*s]);
-  
-  // River
-  addDrawPoint(4, [0.0, 0, 0, 1.0], [ -4*s, 3.5*s,
-                                      2*s, -4*s,
-                                      -3*s, 4*s]);
-  addDrawPoint(5, [0.0, 0, 0, 1.0], [ 2*s, -4*s,
-                                      4.5*s, -2*s,
-                                      -3*s, 4*s]);
-  addDrawPoint(6, [0.0, 0, 0, 1.0], [ 2*s, -4*s,
-                                      4*s, -4*s,
-                                      4.5*s, -2*s]);
-  
-  // TR
-  addDrawPoint(7, [0.0, 0, 0, 1.0], [ 1*s, 3.5*s,
-                                      3.5*s, 2*s,
-                                      3*s, 4*s]);
-  addDrawPoint(8, [0.0, 0, 0, 1.0], [ 3*s, 4*s,
-                                      3.5*s, 2*s,
-                                      4*s, 3.5*s]);
-
-  // LWD: Left Wall Dinks
-  addDrawPoint(9, [0.0, 0, 0, 1.0], [ -5*s, -3*s,
-                                      -4.75*s, -2.25*s,
-                                      -5*s, -2*s]);
-  addDrawPoint(10, [0.0, 0, 0, 1.0], [ -5*s, -1*s,
-                                        -4.75*s, -.55*s,
-                                        -5*s, 0*s]);
-
-  // UWD
-  addDrawPoint(11, [0.0, 0, 0, 1.0], [ -3*s, 5*s,
-                                        -2*s, 4.75*s,
-                                        -1*s, 5*s]);
-  addDrawPoint(12, [0.0, 0, 0, 1.0], [  1*s, 5*s,
-                                        1.25*s, 4.75*s,
-                                        2*s, 5*s]);
-  addDrawPoint(13, [0.0, 0, 0, 1.0], [  1.25*s, 4.75*s,
-                                        2*s, 4.75*s,
-                                        2*s, 5*s]);
-
-  // RWD
-  addDrawPoint(14, [0.0, 0, 0, 1.0], [  5*s, 2*s,
-                                        4.75*s, 1.5*s,
-                                        5*s, 1*s]);
-  addDrawPoint(15, [0.0, 0, 0, 1.0], [  5*s, 1*s,
-                                        4.75*s, -1*s,
-                                        5*s, -1*s]);
-
-  // BWD
-  addDrawPoint(16, [0.0, 0, 0, 1.0], [  4*s, -4.75*s,
-                                        4*s, -5*s,
-                                        5*s, -5*s]);
-  addDrawPoint(17, [.75, 0, 0, 1.0], [  -1*s, -5*s,
-                                        -.75*s, -5.25*s,
-                                        0*s, -5*s]);
-  addDrawPoint(18, [.75, 0, 0, 1.0], [  0*s, -5*s,
-                                        1.25*s, -5.25*s,
-                                        2*s, -5*s]);
-
-  // Last detail
-  addDrawPoint(19, [.75, 0, 0, 1.0], [  -.9*s, 4.9*s,
-                                        0.8*s, 4.9*s,
-                                        0.8*s, 5.2*s]);
-
-
-  
-  for(var i = 0; i < ps.length; i++) {
-    g_shapesList.push(ps[i]);
-  }
-}
-
-function addDrawPoint(i, color, pnts) {
-  ps[i] = new Triangle();
-  ps[i].size = 10.0;
-  ps[i].draw = true;
-  ps[i].color = color;
-  ps[i].points = pnts;
 }
