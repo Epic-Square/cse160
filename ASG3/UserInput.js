@@ -30,7 +30,6 @@ function handleKey() {
   var position          = new Vector3([g_eye[0], g_eye[1], g_eye[2]]);
 
   var finalVec          = new Vector3(position.elements);
-  var directionVec      = new Vector3(fwdVec.elements);
   if(keys['w']) {
     var tempVec = new Vector3([x, 0, z]);
     tempVec.normalize();
@@ -53,12 +52,28 @@ function handleKey() {
     rotfwdVec.normalize();
     finalVec.add(rotfwdVec.mul(duration * 0.2));
   }
+  if(keys['q']) {
+    yaw -= 15 * duration * cameraSpeed;
+    console.log(yaw);
+    updateCamera(yaw, pitch);
+  }
+  if(keys['e']) {
+    yaw += 15 * duration * cameraSpeed;
+    console.log(yaw);
+    updateCamera(yaw, pitch);
+  }
+
+
+  var directionVec      = new Vector3([ g_at[0] - g_eye[0], 
+                                        g_at[1] - g_eye[1], 
+                                        g_at[2] - g_eye[2]]);
+  directionVec.normalize();
 
   g_eye = finalVec.elements;
   g_at = directionVec.add(finalVec).elements;
 
-  var readOnlyVec = new Vector3(directionVec.elements);
-  console.log(readOnlyVec.sub(finalVec).magnitude());
+  //var readOnlyVec = new Vector3(directionVec.elements);
+  //console.log(readOnlyVec.sub(finalVec).magnitude());
 }
 
 function handleClicks(ev) {
@@ -108,6 +123,10 @@ function handleMouseMove(ev) {
 
     pitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, pitch));
 
+    updateCamera(yaw, pitch);
+}
+
+function updateCamera(yaw, pitch) {
     let dirX = Math.cos(pitch) * Math.sin(yaw);
     let dirY = Math.sin(pitch);
     let dirZ = Math.cos(pitch) * Math.cos(yaw);
@@ -116,6 +135,4 @@ function handleMouseMove(ev) {
     var position = new Vector3([g_eye[0], g_eye[1], g_eye[2]]);
     norm.normalize();
     g_at = norm.add(position).elements;
-
-
 }
