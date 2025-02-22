@@ -69,7 +69,17 @@ function handleKey() {
                                         g_at[1] - g_eye[1], 
                                         g_at[2] - g_eye[2]]);
   directionVec.normalize();
-
+  [x,y,z] = finalVec.elements;0
+  const MAX = 15.85;
+  if(x >= MAX)
+    x = MAX;
+  if(x <= -MAX)
+    x = -MAX;
+  if(z >= MAX)
+    z = MAX;
+  if(z <= -MAX)
+    z = -MAX;
+  finalVec = new Vector3([x, y, z]);
   g_eye = finalVec.elements;
   g_at = directionVec.add(finalVec).elements;
 

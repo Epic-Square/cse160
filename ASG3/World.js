@@ -157,6 +157,8 @@ function main() {
   initTextures(2);
   initTextures(3);
 
+  processImage("textures/maze2.png");
+
   canvas.onmousedown = click;
   console.log(document);
   document.onkeyup = keyUp;
@@ -225,9 +227,9 @@ g_wall_n.textureChoice = 4.0;
 g_wall_n.matrix.translate(-16, 0, 16);
 g_wall_n.matrix.scale(32, 5, 1);
 
-const size = 32;
+const MAP_SIZE = 32;
 let mapArray = [
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
   [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
   [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0],
@@ -260,16 +262,17 @@ let mapArray = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 ];
+//let mapArray = null;
 var cubeArray = [];
-for (let i = 0; i < size; i++) {
+for (let i = 0; i < MAP_SIZE; i++) {
   cubeArray[i] = [];
-  for (let j = 0; j < size; j++) {
+  for (let j = 0; j < MAP_SIZE; j++) {
     cubeArray[i][j] = null;
   }
 }
 
-for (let i = 0; i < size; i++) {
-  for (let j = 0; j < size; j++) {
+for (let i = 0; i < MAP_SIZE; i++) {
+  for (let j = 0; j < MAP_SIZE; j++) {
     if (mapArray[i][j] == 1) {
       mapArray[i][j] = Math.floor(Math.random() * 3) + 1;
     }
@@ -305,17 +308,19 @@ function renderScene() {
   var globalRotMat = new Matrix4().rotate(-g_globalAngle, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
-  for(var i = 0; i < 32; i++) {
-    for(var j = 0; j < 32; j++) {
-      //debugger;
-      for(var k = 0; k < mapArray[i][j]; k++) {
-        if(cubeArray[i][j] == null) {
-          cubeArray[i][j] = [];
+  if(mapArray[0][0] != -1) {
+    for(var i = 0; i < 32; i++) {
+      for(var j = 0; j < 32; j++) {
+        //debugger;
+        for(var k = 0; k < mapArray[i][j]; k++) {
+          if(cubeArray[i][j] == null) {
+            cubeArray[i][j] = [];
+          }
+          cubeArray[i][j][k] = new Cube();
+          cubeArray[i][j][k].textureChoice = 1.0;
+          cubeArray[i][j][k].matrix.translate(i - 16, k, j - 16);
+          cubeArray[i][j][k].render();
         }
-        cubeArray[i][j][k] = new Cube();
-        cubeArray[i][j][k].textureChoice = 1.0;
-        cubeArray[i][j][k].matrix.translate(i - 16, k, j - 16);
-        cubeArray[i][j][k].render();
       }
     }
   }
@@ -329,7 +334,7 @@ function renderScene() {
   cube.matrix.translate(-.5, 0, -.5);
   cube.render();*/
 
-  createMorb(.5, .5, .5, 1, 1, 1);
+  createMorb(.5, 1, .5, 2, 2, 2);
 
   g_plane.render();
   g_skybox.render();

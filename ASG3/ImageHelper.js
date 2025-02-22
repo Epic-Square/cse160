@@ -104,3 +104,30 @@ function loadTexture(n, texture, u_Sampler, image) {
     // Draw the rectangle
     //gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
 }
+
+function processImage(image) {
+  var img = new Image();
+  img.onload = function() {
+    console.log("Maze loaded!");
+    var canvas2 = document.getElementById('second');
+    if(canvas2 == null) {
+      console.log("Failed to create the canvas");
+      return;
+    }
+    var ctx = canvas2.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    var tempArr = ctx.getImageData(0, 0, 32, 32).data;
+    //mapArray = []; // 2D array
+    for(var i = 3; i < tempArr.length; i += 4) {
+      var x = parseInt((i / 4) / 32);
+      var y = parseInt(i / 4 % 32);
+      //debugger;
+      if(tempArr[i] == 255) {
+        mapArray[x][y] = Math.floor(Math.random() * 3) + 1;
+      } else {
+        mapArray[x][y] = 0;
+      }
+    }
+  }
+  img.src = image;
+}
