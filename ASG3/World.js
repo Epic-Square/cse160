@@ -153,6 +153,7 @@ function main() {
   console.log(document);
   document.onkeyup = keyUp;
   document.onkeydown = keyDown;
+  document.onmousemove = handleMouseMove
   //document.addEventListener('keydown', keyDown);
   //document.addEventListener('keyup', keyUp);
 
@@ -185,62 +186,10 @@ function click(ev) {
   }
 }
 
-var isKeyDown = false;
-var keys     = {}; // dictionary of keys
-var numKeysDown = 0;
-function keyDown(ev) {
-  keys[ev.key] = true;
-  numKeysDown++;
-  if(numKeysDown > 0)
-    isKeyDown = true;
-
-  //console.log(ev.keyDown, g_eye[0]);
-  //console.log("key down!");
-}
-
-function keyUp(ev) {
-  console.log(ev.key);
-  keys[ev.key] = false;
-  numKeysDown--;
-  if(numKeysDown <= 0)
-    isKeyDown = false;
-
-  //console.log("key up!");
-}
-
-function handleKey() {
-  if(!isKeyDown) {
-    return;
-  }
-
-  if(keys['w']) {
-    g_eye[2] += duration * 0.2;
-  }
-  if(keys['s']) {
-    g_eye[2] -= duration * 0.2;
-  }
-  if(keys['a']) {
-    g_eye[0] -= duration * 0.2;
-  }
-  if(keys['d']) {
-    g_eye[0] += duration * 0.2;
-  }
-}
-var duration;
-function handleClicks(ev) {
-  var x = ev.clientX; // x coordinate of a mouse pointer
-  var y = ev.clientY; // y coordinate of a mouse pointer
-  var rect = ev.target.getBoundingClientRect();
-
-  x = ((x - rect.left) - canvas.width/2)/(canvas.width/2);
-  y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
-
-  return ([x, y]);
-}
-
-var g_eye = [0, .5, -3];
-var g_at  = [0, .5, 0];
+var g_eye = [0, 1.5, -3];
+var g_at  = [0, 1.5, -2];
 var g_up  = [0, 1, 0];
+var duration;
 
 // Define the plane
 var g_plane = new Cube();
@@ -255,7 +204,8 @@ function renderScene() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   // Set the matrix to be used for to set the camera view
-  handleKey();
+  if(isKeyDown)
+    handleKey();
   var projMat = new Matrix4();
   projMat.setPerspective(60, -canvas.width/canvas.height, 0.1, 1000000);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
