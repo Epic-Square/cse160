@@ -55,12 +55,10 @@ function handleKey() {
   }
   if(keys['q']) {
     yaw -= 200 * delta * cameraSpeed;
-    console.log(yaw);
     updateCamera(yaw, pitch);
   }
   if(keys['e']) {
     yaw += 200 * delta * cameraSpeed;
-    console.log(yaw);
     updateCamera(yaw, pitch);
   }
 
