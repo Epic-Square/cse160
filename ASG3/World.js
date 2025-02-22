@@ -129,7 +129,7 @@ const TRIANGLE = 1;
 const CIRCLE = 2;
 
 // UI Elements
-let g_globalAnimate = false;
+let g_globalAnimate = true;
 let g_globalAngle = 0;
 
 function addActionsForHtmlUI() {
@@ -271,14 +271,14 @@ for (let i = 0; i < size; i++) {
 for (let i = 0; i < size; i++) {
   for (let j = 0; j < size; j++) {
     if (mapArray[i][j] == 1) {
-      mapArray[i][j] = Math.floor(Math.random() * 1) + 1;
+      mapArray[i][j] = Math.floor(Math.random() * 3) + 1;
     }
   }
 }
 
 
-var g_eye = [0, 6, -3.5];
-var g_at  = [0, 6, -2];
+var g_eye = [-15.5, 1.5, 15.5];
+var g_at  = [-15, 1.5, 15];
 var g_up  = [0, 1, 0];
 var duration;
 function renderScene() {
@@ -329,13 +329,14 @@ function renderScene() {
   cube.matrix.translate(-.5, 0, -.5);
   cube.render();*/
 
+  createMorb(.5, .5, .5, 1, 1, 1);
+
   g_plane.render();
   g_skybox.render();
-
-  g_wall_w.render();
-  g_wall_s.render();
-  g_wall_e.render();
-  g_wall_n.render();
+  //g_wall_w.render();
+  //g_wall_s.render();
+  //g_wall_e.render();
+  //g_wall_n.render();
 
   duration = performance.now() - startTime;
   sendTextToHTML(" ms: " + Math.floor(duration) + "  fps: " + Math.floor(10000/duration), "performance");
