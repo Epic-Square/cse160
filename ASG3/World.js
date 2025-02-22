@@ -157,7 +157,15 @@ function main() {
   initTextures(2);
   initTextures(3);
 
-  processImage("textures/maze2.png");
+  var randNum = Math.floor(Math.random() * 2) + 1;
+  switch(randNum) {
+    case 1:
+      processImage("textures/maze1.png");
+      break;
+    case 2:
+      processImage("textures/maze2.png");
+      break;
+  }
 
   canvas.onmousedown = click;
   console.log(document);
