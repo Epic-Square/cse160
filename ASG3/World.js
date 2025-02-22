@@ -28,6 +28,7 @@ var FSHADER_SOURCE =
   'uniform sampler2D u_Sampler0;\n' +
   'uniform sampler2D u_Sampler1;\n' +
   'uniform sampler2D u_Sampler2;\n' +
+  'uniform sampler2D u_Sampler3;\n' +
   'uniform float u_text;\n' +
   'void main() {\n' +
   '  if(u_text == 0.0) {\n' +
@@ -36,9 +37,11 @@ var FSHADER_SOURCE =
   '     gl_FragColor = texture2D(u_Sampler0, v_UV);\n' +
   '  } else if(u_text == 2.0) {\n' +
   '     gl_FragColor = texture2D(u_Sampler1, v_UV);\n' +
-  '  } else if(u_text == 3.0)\n' +
+  '  } else if(u_text == 3.0) {\n' +
   '     gl_FragColor = texture2D(u_Sampler2, v_UV);\n' +
-  '  }\n';
+  '  } else if(u_text == 4.0) {\n;' +
+  '     gl_FragColor = texture2D(u_Sampler3, v_UV);\n' +
+  '  }\n' +
   '}\n';
 
 let canvas;
@@ -152,6 +155,7 @@ function main() {
   initTextures(0);
   initTextures(1);
   initTextures(2);
+  initTextures(3);
 
   canvas.onmousedown = click;
   console.log(document);
@@ -190,16 +194,36 @@ function click(ev) {
   }
 }
 
-var g_eye = [0, 1.5, -3];
-var g_at  = [0, 1.5, -2];
-var g_up  = [0, 1, 0];
-var duration;
-
 // Define the plane
 var g_plane = new Cube();
-g_plane.textureChoice = 3.0;
+g_plane.textureChoice = 2.0;
 g_plane.matrix.scale(32, 32, 32);
 g_plane.matrix.translate(-.5, -1, -.5);
+
+var g_skybox = new Cube();
+g_skybox.textureChoice = 3.0;
+g_skybox.matrix.scale(128, 128, 128);
+g_skybox.matrix.translate(-.5, -.5, -.5);
+
+var g_wall_w = new Cube();
+g_wall_w.textureChoice = 4.0;
+g_wall_w.matrix.translate(-17, 0, -16);
+g_wall_w.matrix.scale(1, 5, 32);
+
+var g_wall_s = new Cube();
+g_wall_s.textureChoice = 4.0;
+g_wall_s.matrix.translate(-16, 0, -17);
+g_wall_s.matrix.scale(32, 5, 1);
+
+var g_wall_e = new Cube();
+g_wall_e.textureChoice = 4.0;
+g_wall_e.matrix.translate(16, 0, -16);
+g_wall_e.matrix.scale(1, 5, 32);
+
+var g_wall_n = new Cube();
+g_wall_n.textureChoice = 4.0;
+g_wall_n.matrix.translate(-16, 0, 16);
+g_wall_n.matrix.scale(32, 5, 1);
 
 const size = 32;
 let mapArray = [
@@ -247,11 +271,16 @@ for (let i = 0; i < size; i++) {
 for (let i = 0; i < size; i++) {
   for (let j = 0; j < size; j++) {
     if (mapArray[i][j] == 1) {
-      mapArray[i][j] = Math.floor(Math.random() * 4) + 1;
+      mapArray[i][j] = Math.floor(Math.random() * 1) + 1;
     }
   }
 }
 
+
+var g_eye = [0, 6, -3.5];
+var g_at  = [0, 6, -2];
+var g_up  = [0, 1, 0];
+var duration;
 function renderScene() {
   // Clear <canvas>
   var startTime = performance.now();
@@ -301,6 +330,12 @@ function renderScene() {
   cube.render();*/
 
   g_plane.render();
+  g_skybox.render();
+
+  g_wall_w.render();
+  g_wall_s.render();
+  g_wall_e.render();
+  g_wall_n.render();
 
   duration = performance.now() - startTime;
   sendTextToHTML(" ms: " + Math.floor(duration) + "  fps: " + Math.floor(10000/duration), "performance");
