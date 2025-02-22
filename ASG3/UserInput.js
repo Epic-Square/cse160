@@ -21,7 +21,8 @@ function keyUp(ev) {
 }
 
 function handleKey() {
-  
+  var delta = 1.0 / duration / 10.0;
+  var speed = 2;
   var fwdVec            = new Vector3([ g_at[0] - g_eye[0], 
                                         g_at[1] - g_eye[1], 
                                         g_at[2] - g_eye[2]]);
@@ -33,32 +34,32 @@ function handleKey() {
   if(keys['w']) {
     var tempVec = new Vector3([x, 0, z]);
     tempVec.normalize();
-    finalVec.add(tempVec.mul(duration * 0.2));
+    finalVec.add(tempVec.mul(delta * speed));
     //
   }
   if(keys['s']) {
     var tempVec = new Vector3([x, 0, z]);
     tempVec.normalize();
-    finalVec.sub(tempVec.mul(duration * 0.2));
+    finalVec.sub(tempVec.mul(delta * speed));
     //g_at  = position.add(fwdVec).elements; 
   }
   if(keys['a']) {
     var rotfwdVec = new Vector3([-z, 0, x]);
     rotfwdVec.normalize();
-    finalVec.add(rotfwdVec.mul(duration * 0.2));
+    finalVec.add(rotfwdVec.mul(delta * speed));
   }
   if(keys['d']) {
     var rotfwdVec = new Vector3([z, 0, -x]);
     rotfwdVec.normalize();
-    finalVec.add(rotfwdVec.mul(duration * 0.2));
+    finalVec.add(rotfwdVec.mul(delta * speed));
   }
   if(keys['q']) {
-    yaw -= 15 * duration * cameraSpeed;
+    yaw -= 200 * delta * cameraSpeed;
     console.log(yaw);
     updateCamera(yaw, pitch);
   }
   if(keys['e']) {
-    yaw += 15 * duration * cameraSpeed;
+    yaw += 200 * delta * cameraSpeed;
     console.log(yaw);
     updateCamera(yaw, pitch);
   }

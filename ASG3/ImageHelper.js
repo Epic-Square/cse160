@@ -4,6 +4,11 @@ function initTextures(n) {
       console.log('Failed to create the texture object');
       return false;
     }
+    var image = new Image();  // Create the image object
+    if (!image) {
+      console.log('Failed to create the image object');
+      return false;
+    }
     if(n == 0) {
       // Get the storage location of u_Sampler
       var u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
@@ -11,20 +16,15 @@ function initTextures(n) {
         console.log('Failed to get the storage location of u_Sampler0');
         return false;
       }
-      var image0 = new Image();  // Create the image object
-      if (!image0) {
-        console.log('Failed to create the image object');
-        return false;
-      }
 
       // Register the event handler to be called on loading an image
-      image0.onload = function(){
+      image.onload = function(){
         console.log('image0 loaded'); 
-        loadTexture(n, texture, u_Sampler0, image0); 
+        loadTexture(n, texture, u_Sampler0, image); 
       };
       // Tell the browser to load an image
       //image.src = 'textures/bald_man.png';
-      image0.src = 'textures/uv_128_128.png';
+      image.src = 'textures/uv_128_128.png';
     } else if(n == 1) {
       // Get the storage location of u_Sampler
       var u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
@@ -32,19 +32,29 @@ function initTextures(n) {
         console.log('Failed to get the storage location of u_Sampler1');
         return false;
       }
-      var image1 = new Image();  // Create the image object
-      if (!image1) {
-        console.log('Failed to create the image object');
+
+      // Register the event handler to be called on loading an image
+      image.onload = function(){ 
+        console.log('image1 loaded');
+        loadTexture(n, texture, u_Sampler1, image); 
+      };
+      // Tell the browser to load an image
+      image.src = 'textures/bald_man.png';
+    } else if(n == 2) {
+      // Get the storage location of u_Sampler
+      var u_Sampler2 = gl.getUniformLocation(gl.program, 'u_Sampler2');
+      if (!u_Sampler2) {
+        console.log('Failed to get the storage location of u_Sampler2');
         return false;
       }
 
       // Register the event handler to be called on loading an image
-      image1.onload = function(){ 
-        console.log('image1 loaded');
-        loadTexture(n, texture, u_Sampler1, image1); 
+      image.onload = function(){ 
+        console.log('image2 loaded');
+        loadTexture(n, texture, u_Sampler2, image); 
       };
       // Tell the browser to load an image
-      image1.src = 'textures/bald_man.png';
+      image.src = 'textures/sky_cloud.jpg';
     }
 
     return true;
@@ -57,6 +67,8 @@ function loadTexture(n, texture, u_Sampler, image) {
       gl.activeTexture(gl.TEXTURE0);
     } else if(n == 1) {
       gl.activeTexture(gl.TEXTURE1);
+    } else if(n == 2) {
+      gl.activeTexture(gl.TEXTURE2);
     }
     // Bind the texture object to the target
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -66,7 +78,7 @@ function loadTexture(n, texture, u_Sampler, image) {
     // Set the texture image
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
-    // Set the texture unit 0 to the sampler
+    // Set the texture unit n to the sampler
     gl.uniform1i(u_Sampler, n);
 
     // Clear <canvas>

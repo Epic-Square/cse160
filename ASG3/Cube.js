@@ -4,7 +4,46 @@ class Cube {
       //this.position = [0.0, 0.0, 0.0];
       this.color = [1.0, 1.0, 1.0, 1.0];
       this.matrix = new Matrix4();
-      //this.buffer = null;
+      this.buffer = null;
+      this.uvBuffer = null;
+      this.vertices = 
+      [ 0,0,0, 1,1,0, 1,0,0, // Front face
+        0,0,0, 0,1,0, 1,1,0,
+
+        0,1,0, 1,1,1, 1,1,0, // Top face
+        0,1,0, 0,1,1, 1,1,1,
+
+        0,0,1, 0,1,0, 0,0,0, // Left face
+        0,0,1, 0,1,1, 0,1,0,
+
+        1,0,0, 1,1,1, 1,0,1, // Right face
+        1,0,0, 1,1,0, 1,1,1,
+
+        1,0,1, 0,1,1, 0,0,1, // Back face
+        1,0,1, 1,1,1, 0,1,1,
+
+        0,0,1, 1,0,0, 1,0,1, // Bottom face
+        0,0,1, 0,0,0, 1,0,0
+      ];
+      this.uv = 
+      [ 0,0, 1,1, 1,0,
+        0,0, 0,1, 1,1,
+
+        0,0, 1,1, 1,0,
+        0,0, 0,1, 1,1,
+        
+        0,0, 1,1, 1,0,
+        0,0, 0,1, 1,1,
+        
+        0,0, 1,1, 1,0,
+        0,0, 0,1, 1,1,
+        
+        0,0, 1,1, 1,0,
+        0,0, 0,1, 1,1,
+        
+        0,0, 1,1, 1,0,
+        0,0, 0,1, 1,1
+      ];
       this.textureChoice = 0.0;
     }
 
@@ -13,6 +52,22 @@ class Cube {
         var rgba = this.color;
         //var size = this.size;
 
+        if(this.buffer == null) {
+          this.buffer = gl.createBuffer();
+          if(!this.buffer) {
+            console.log('Failed to create buffer object');
+            return;
+          }
+        }
+
+        if(this.uvBuffer == null) {
+          this.uvBuffer = gl.createBuffer();
+          if(!this.uvBuffer) {
+            console.log('Failed to create buffer object');
+            return;
+          }
+        }
+
         // Pass the color of a point to u_FragColor variable
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
 
@@ -20,67 +75,32 @@ class Cube {
 
         // Pass the Matrix to u_ModelMatrix attribute
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
-
-        // Front of cube
-        drawTriangle3DUV(
-          [0,0,0, 1,1,0, 1,0,0], 
-          [0,0, 1,1, 1,0]);
-        drawTriangle3DUV(
-          [0,0,0, 0,1,0, 1,1,0],
-          [0,0, 0,1, 1,1]);
-
-        // psuedo-lighting
-        gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-
-        // Top of cube
-        drawTriangle3DUV(
-          [0,1,0, 1,1,1, 1,1,0],
-          [0,0, 1,1, 1,0]);
-        drawTriangle3DUV(
-          [0,1,0, 0,1,1, 1,1,1],
-          [0,0, 0,1, 1,1]);
-        
-        // pseudo-lighting
-        gl.uniform4f(u_FragColor, rgba[0]*.9, rgba[1]*.9, rgba[2]*.9, rgba[3]);
-
-        // Left of Cube
-        drawTriangle3DUV(
-          [0,0,1, 0,1,0, 0,0,0],
-          [0,0, 1,1, 1,0]);
-        drawTriangle3DUV(
-          [0,0,1, 0,1,1, 0,1,0],
-          [0,0, 0,1, 1,1]);
-
-        // Right of Cube
-        drawTriangle3DUV(
-          [1,0,0, 1,1,1, 1,0,1],
-          [0,0, 1,1, 1,0]);
-        drawTriangle3DUV(
-          [1,0,0, 1,1,0, 1,1,1],
-          [0,0, 0,1, 1,1]);
-
-        // psuedo-lighting: Darker lighting.
-        gl.uniform4f(u_FragColor, rgba[0]*.8, rgba[1]*.8, rgba[2]*.8, rgba[3]);
-
-        // Back of Cube
-        drawTriangle3DUV(
-          [1,0,1, 0,1,1, 0,0,1],
-          [0,0, 1,1, 1,0]);
-        drawTriangle3DUV(
-          [1,0,1, 1,1,1, 0,1,1],
-          [0,0, 0,1, 1,1]);
-
-        // psuedo-lighting: Darkest lighting.
-        gl.uniform4f(u_FragColor, rgba[0]*.6, rgba[1]*.6, rgba[2]*.6, rgba[3]);
-
-        // Bottom of Cube
-        drawTriangle3DUV(
-          [0,0,1, 1,0,0, 1,0,1],
-          [0,0, 1,1, 1,0]);
-        drawTriangle3DUV(
-          [0,0,1, 0,0,0, 1,0,0],
-          [0,0, 0,1, 1,1]);
+        //debugger;
+        //console.log(this.vertices.length/3);
+        this.drawTriangle3DUV(this.vertices, this.uv);
     }
+
+    drawTriangle3DUV(vertices, uv) {
+      var n = 3;
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+  
+      gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+  
+      // Enable the assignment to a_Position variable
+      gl.enableVertexAttribArray(a_Position);
+  
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.DYNAMIC_DRAW);
+  
+      gl.vertexAttribPointer(a_UV, 2, gl.FLOAT, false, 0, 0);
+  
+      // Enable the assignment to a_Position variable
+      gl.enableVertexAttribArray(a_UV);
+      
+      //console.log(this.vertices.length/3);
+      gl.drawArrays(gl.TRIANGLES, 0, vertices.length/3);
+  }
 }
 
 // Final positioning for center.
