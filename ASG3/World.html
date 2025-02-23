@@ -6,7 +6,7 @@
   </head>
 
   <body onload="main()">
-    <canvas id="webgl" width="1600" height="900">
+    <canvas id="webgl" width="800" height="800">
     Please use a browser that supports "canvas"
     </canvas>
     <p>
@@ -17,7 +17,20 @@
     <div id="performance">ms:  fps:</div>
 
     <br>
-    Animation <button type="button" id="animate">Toggle</button>
+    Controls - 'WASD', 'Q', and 'E'. 
+    <p>
+    This is a little maze game where you must find your way to the center to see a special surprize.
+    <p>
+    I added support to add mazes to this game easily. One only needs to make 32x32 picture (and a little more code to make it selectedable).
+    <p>
+    The 32x32 png only needs to contain pixels with max transparency (a wall in the maze off random height between 1 and 4),
+    <p>
+    and any other pixel (dirt road). The creator only needs to remember the fixed location of the player and the 'surprise in the center'.
+    <p>
+    Right now, I have only added 2 maps to the pool. You can tell which map is selected by the image at the bottom of the screen.
+    <p>
+    If the mouse controls for the camera are too finiky, you can use WASD along with QE to move and control the camera respectfully.
+    <p>
     <p>
     Camera Angle <input type="range" min="-180" max="179" value="0" class="slider" id="angleSlide">
 <!--

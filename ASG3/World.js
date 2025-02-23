@@ -133,9 +133,9 @@ let g_globalAnimate = true;
 let g_globalAngle = 0;
 
 function addActionsForHtmlUI() {
-  document.getElementById('animate').onclick = function() {
-    g_globalAnimate = !g_globalAnimate;
-  }
+  //document.getElementById('animate').onclick = function() {
+  //  g_globalAnimate = !g_globalAnimate;
+  //}
 
   // Angle Slider Events
   document.getElementById('angleSlide').addEventListener('mousemove', function() {
