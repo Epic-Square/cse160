@@ -98,7 +98,7 @@ function handleClicks(ev) {
 
 let lastX, lastY;
 let cameraSpeed = 0.006;
-let yaw = 0, pitch = 0;
+let yaw = 135 / (2 * Math.PI), pitch = 0;
 function handleMouseMove(ev) {
     if(lastX == undefined || lastY == undefined) {
         lastX = ev.clientX;
