@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Change a point color</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="800" height="800">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <p>
+<!--
+    <button type="button" id="green">Green</button>
+    <button type="button" id="red">Red</button>
+-->
+    <div id="performance">ms:  fps:</div>
+
+    <br>
+    Controls - 'WASD', 'Q', and 'E'. 
+    <p>
+    This is a little maze game where you must find your way to the center to see a special surprize.
+    <p>
+    I added support to add mazes to this game easily. One only needs to make 32x32 picture (and a little more code to make it selectedable).
+    <p>
+    The 32x32 png only needs to contain pixels with max transparency (a wall in the maze off random height between 1 and 4),
+    <p>
+    and any other pixel (dirt road). The creator only needs to remember the fixed location of the player and the 'surprise in the center'.
+    <p>
+    Right now, I have only added 2 maps to the pool. You can tell which map is selected by the image at the bottom of the screen.
+    <p>
+    If the mouse controls for the camera are too finiky, you can use WASD along with QE to move and control the camera respectfully.
+    <p>
+    Story: You hear noises coming from the heart of your maze garden. Noises from a creature you've never heard before. What could it be? 
+    <p>
+    Could it be friendly... or dangerous? You know of only one way to find out.
+    <p>
+    Camera Angle <input type="range" min="-180" max="179" value="0" class="slider" id="angleSlide">
+<!--
+    <p>
+    Rotation <input type="range" min="0" max="7" value="0" class="slider" id="rotSlide">
+-->
+    <p>
+    <canvas id="second" width="32" height="32"></canvas>
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix-cse160.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Point.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Morb.js"></script>
+    <script src="ImageHelper.js"></script>
+    <script src="UserInput.js"></script>
+    <script src="World.js"></script>
+  </body>
+</html>

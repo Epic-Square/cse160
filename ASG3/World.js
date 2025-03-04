@@ -6,7 +6,9 @@ var VSHADER_SOURCE =
   'precision mediump float;\n' +
   'attribute vec4 a_Position;\n' +
   'attribute vec2 a_UV;\n' +
+  'attribute vec3 a_Normal;\n' +
   'varying vec2 v_UV;\n' +
+  'varying vec3 v_Normal;\n' +
   'uniform mat4 u_ModelMatrix;\n' +
   'uniform mat4 u_GlobalRotateMatrix;\n' +
   'uniform mat4 u_ViewMatrix;\n' +
@@ -18,12 +20,14 @@ var VSHADER_SOURCE =
   //'  gl_Position = u_GlobalRotateMatrix * u_ModelMatrix \n' + 
   //'              * a_Position;' +
   '  v_UV = a_UV;\n' +
+  '  v_Normal = a_Normal;\n' +
   '}\n';
 
 // Fragment shader program
 var FSHADER_SOURCE =
   'precision mediump float;\n' +
   'varying vec2 v_UV;\n' +
+  'varying vec3 v_Normal;\n' +
   'uniform vec4 u_FragColor;\n' +
   'uniform sampler2D u_Sampler0;\n' +
   'uniform sampler2D u_Sampler1;\n' +
@@ -31,6 +35,7 @@ var FSHADER_SOURCE =
   'uniform sampler2D u_Sampler3;\n' +
   'uniform float u_text;\n' +
   'void main() {\n' +
+  '  gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n' + // Default color in case of error
   '  if(u_text == 0.0) {\n' +
   '     gl_FragColor = u_FragColor;\n' +
   '  } else if(u_text == 1.0) {\n' +
@@ -39,7 +44,7 @@ var FSHADER_SOURCE =
   '     gl_FragColor = texture2D(u_Sampler1, v_UV);\n' +
   '  } else if(u_text == 3.0) {\n' +
   '     gl_FragColor = texture2D(u_Sampler2, v_UV);\n' +
-  '  } else if(u_text == 4.0) {\n;' +
+  '  } else if(u_text == 4.0) {\n' +
   '     gl_FragColor = texture2D(u_Sampler3, v_UV);\n' +
   '  }\n' +
   '}\n';
@@ -85,6 +90,13 @@ function connectVariablesToGLSL() {
     console.log('Failed to get the storage location of a_UV');
     return;
   }
+
+  a_Normal = gl.getAttribLocation(gl.program, 'a_Normal');
+  if (a_Normal < 0) {
+    console.log('Failed to get the storage location of a_Normal');
+    return;
+  }
+
   // Get the storage location of u_ViewMatrix
   u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
   if (!u_ViewMatrix) {
@@ -150,6 +162,15 @@ function main() {
   setUpWebGL();
   connectVariablesToGLSL();
   addActionsForHtmlUI();
+
+  var test = new Matrix4();
+
+  test.setLookAt( 0, 0, 10,
+                  0, 0, 0,
+                  0, 1, 0
+  );
+
+  console.log(test);
 
   // Initialize the texture.
   initTextures(0);
