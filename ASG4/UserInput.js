@@ -21,6 +21,9 @@ function keyUp(ev) {
 }
 
 function handleKey() {
+  if(!g_enableControls) {
+    return;
+  }
   var delta = (duration / 100);
   var speed = 1;
   var fwdVec            = new Vector3([ g_at[0] - g_eye[0], 
@@ -68,7 +71,7 @@ function handleKey() {
                                         g_at[2] - g_eye[2]]);
   directionVec.normalize();
   [x,y,z] = finalVec.elements;
-  const MAX = 15.85;
+  const MAX = 7.85;
   if(x >= MAX)
     x = MAX;
   if(x <= -MAX)
@@ -98,7 +101,7 @@ function handleClicks(ev) {
 
 let lastX, lastY;
 let cameraSpeed = 0.006;
-let yaw = 20 * (Math.PI / 180), pitch = -19 * (Math.PI / 180);
+let yaw = 0 * (Math.PI / 180), pitch = 0 * (Math.PI / 180);
 function handleMouseMove(ev) {
     if(lastX == undefined || lastY == undefined) {
         lastX = ev.clientX;
@@ -111,7 +114,7 @@ function handleMouseMove(ev) {
     lastX = ev.clientX;
     lastY = ev.clientY;
 
-    if (ev.buttons !== 1) {
+    if (ev.buttons !== 1 || !g_enableControls) {
       return;
     }
 

@@ -11,7 +11,7 @@ class Sphere {
       this.uv = null;
       this.normals = null;
       this.textureChoice = 0.0;
-      this.detail = 20;
+      this.detail = 10;
     }
 
     render() {
@@ -87,7 +87,6 @@ class Sphere {
     }
 
     drawTriangle3DUV() {
-      var n = 3;
       gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.DYNAMIC_DRAW);
   

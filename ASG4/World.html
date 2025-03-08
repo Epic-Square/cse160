@@ -17,25 +17,20 @@
     <div id="performance">ms:  fps:</div>
 
     <br>
-    Controls - 'WASD', 'Q', and 'E'. 
+    Controls - 'WASD', 'Q', and 'E' with the mouse (hold down left click). 
     <p>
-    This is a little maze game where you must find your way to the center to see a special surprize.
+    Light X <input type="range" min="-800" max="800" value="0" class="slider" id="lightSlideX">
+    Light Y <input type="range" min="0" max="1600" value="350" class="slider" id="lightSlideY">
+    Light Z <input type="range" min="-800" max="800" value="0" class="slider" id="lightSlideZ">
     <p>
-    I added support to add mazes to this game easily. One only needs to make 32x32 picture (and a little more code to make it selectedable).
-    <p>
-    The 32x32 png only needs to contain pixels with max transparency (a wall in the maze off random height between 1 and 4),
-    <p>
-    and any other pixel (dirt road). The creator only needs to remember the fixed location of the player and the 'surprise in the center'.
-    <p>
-    Right now, I have only added 2 maps to the pool. You can tell which map is selected by the image at the bottom of the screen.
-    <p>
-    If the mouse controls for the camera are too finiky, you can use WASD along with QE to move and control the camera respectfully.
-    <p>
-    Story: You hear noises coming from the heart of your maze garden. Noises from a creature you've never heard before. What could it be? 
-    <p>
-    Could it be friendly... or dangerous? You know of only one way to find out.
+    <button type="button" id="toggleNormals">Toggle Normals</button>
+    <button type="button" id="toggleLighting">Toggle Lighting</button>
+    <button type="button" id="toggleLightMovement">Toggle Light Movement</button>
+    <button type="button" id="toggleControls">Toggle Controls</button>
     <p>
     Camera Angle <input type="range" min="-180" max="179" value="0" class="slider" id="angleSlide">
+    <p>
+    Camera angle affects the Normal map direction. For light, it keeps the specular in place.
 <!--
     <p>
     Rotation <input type="range" min="0" max="7" value="0" class="slider" id="rotSlide">
