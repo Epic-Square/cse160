@@ -19,8 +19,10 @@ var VSHADER_SOURCE =
   '              * a_Position;\n' +
   //'  gl_Position = u_GlobalRotateMatrix * u_ModelMatrix \n' + 
   //'              * a_Position;' +
-  '  v_UV = a_UV;\n' +
-  '  v_Normal = a_Normal;\n' +
+  '  v_UV        = a_UV;\n' +
+  '  vec4 temp   = u_GlobalRotateMatrix * u_ModelMatrix \n' + 
+  '              * vec4(a_Normal, 0.0);\n' +
+  '  v_Normal    = normalize(temp.xyz);\n' +
   '}\n';
 
 // Fragment shader program
@@ -48,6 +50,7 @@ var FSHADER_SOURCE =
   '     gl_FragColor = texture2D(u_Sampler3, v_UV);\n' +
   '  }\n' +
   '  gl_FragColor = 0.5 * gl_FragColor + 0.5 * vec4(v_Normal, 1.0);\n' +
+  //'  gl_FragColor = vec4(v_Normal, 1.0);\n' +
   '}\n';
 
 let canvas;
@@ -310,10 +313,10 @@ for (let i = 0; i < MAP_SIZE; i++) {
 }
 
 
-var g_eye = [-15.5, 1.5, 15.5];
-var g_at  = [-15, 1.5, 15];
+var g_eye = [-1, 1.5, -2];
+var g_at  = [g_eye[0] + .5, g_eye[1] - 0.4, g_eye[2] + 1];
 var g_up  = [0, 1, 0];
-var duration;
+var duration = 0;
 function renderScene() {
   // Clear <canvas>
   var startTime = performance.now();
@@ -364,7 +367,12 @@ function renderScene() {
   cube.matrix.translate(-.5, 0, -.5);
   cube.render();*/
 
-  createMorb(.5, 1, .5, 2, 2, 2);
+  //var morb = createMorb(0, 1, 0, 2, 2, 2);
+
+  var sphere = new Sphere();
+  sphere.matrix.translate(0, 2, 0);
+  sphere.matrix.scale(1, 1, 1);
+  sphere.render();
 
   g_plane.render();
   g_skybox.render();

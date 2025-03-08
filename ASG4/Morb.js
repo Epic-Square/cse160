@@ -268,4 +268,6 @@ function createMorb(tX, tY, tZ, sX, sY, sZ) {
   backLeftFoot.matrix.scale(.3, .2, .3);
   posTop(backLeftFoot);
   backLeftFoot.render();
+
+  return body;
 }
