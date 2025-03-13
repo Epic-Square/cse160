@@ -1,7 +1,11 @@
-import { bootstrapMeshScene } from './util/standard-scene'
-import { VOXLoader } from 'three/examples/jsm/loaders/VOXLoader'
+import { bootstrapMeshScene } from 'util/standard-scene.js'
+//import { VOXLoader } from 'three/examples/jsm/loaders/VOXLoader'
+//import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.155/examples/jsm/controls/OrbitControls.js';
+import { VOXLoader } from 'https://cdn.jsdelivr.net/npm/three@0.155/examples/jsm/loaders/VOXLoader.js';
+
 import { VOXMesh } from 'three/examples/jsm/loaders/VOXLoader'
-import * as THREE from 'three'
+//import * as THREE from 'three';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155/build/three.module.js';
 
 // Add Light
 //const color = new THREE.Color(0xffffff);
@@ -11,7 +15,7 @@ import * as THREE from 'three'
 
 
 const loadModel = () => {
-  return new VOXLoader().loadAsync('/assets/models/vox/biome.vox').then((chunks) => {
+  return new VOXLoader().loadAsync('./assets/models/vox/biome.vox').then((chunks) => {
     const group = new THREE.Group()
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i]

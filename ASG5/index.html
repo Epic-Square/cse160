@@ -8,11 +8,17 @@
 		</style>
 	</head>
 	<body>
-		<script type="module" src="/controls/scene-controls.js"></script>
-		<script type="module" src="/controls/renderer-control.js"></script>
-		<script type="module" src="/controller/orbit-controller.js"></script>
-		<script type="module" src="/bootstrap/floor.js"></script>
-		<script type="module" src="/util/standard-scene.js"></script>
-		<script type="module" src="/main.js"></script>
+		<script  type="importmap">{
+			"imports": {
+				"three": "https://threejs.org/build/three.module.js"
+			}
+		}</script>
+		<script type="module" src="./controls/scene-controls.js"></script>
+		<script type="module" src="./controls/renderer-control.js"></script>
+		<script type="module" src="./controller/orbit-controller.js"></script>
+		<script type="module" src="./bootstrap/floor.js"></script>
+		<script type="module" src="./util/standard-scene.js"></script>
+		<script type="module" src="./main.js"></script>
+		
 	</body>
 </html>
