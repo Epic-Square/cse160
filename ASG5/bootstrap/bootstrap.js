@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { initOrbitControls } from '../controller/orbit-controller.js'
 import { initLighting } from './lighting.js'
-import { onResize } from '../util/update-on-resize'
+import { onResize } from '../util/update-on-resize.js'
 
 export const initScene = ({ backgroundColor, fogColor, disableShadows, disableLights, disableDefaultControls }) => {
   const init = (fn) => {

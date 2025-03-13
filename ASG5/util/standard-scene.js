@@ -1,11 +1,11 @@
-import { initScene } from '../bootstrap/bootstrap'
-import { intializeRendererControls } from '../controls/renderer-control'
+import { initScene } from '../bootstrap/bootstrap.js'
+import { intializeRendererControls } from '../controls/renderer-control.js';
 
-import GUI from 'lil-gui'
-import { initializeSceneControls } from '../controls/scene-controls'
+import { GUI } from 'lil-gui'; 
+import { initializeSceneControls } from '../controls/scene-controls.js'
 import * as THREE from 'three'
-import { floatingFloor } from '../bootstrap/floor'
-import { visitChildren } from '../util/modelUtil'
+import { floatingFloor } from '../bootstrap/floor.js'
+//import { visitChildren } from '../util/modelUtil'
 
 let clouds = [];
 let numClouds = 25;
