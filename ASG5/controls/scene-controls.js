@@ -79,14 +79,14 @@ const handleBackgroundChange = (setting, scene) => {
       scene.background = new THREE.Color(0x44ff44)
       break
     case 'Texture':
-      textureLoader.load('assets/textures/wood/abstract-antique-backdrop-164005.jpg', (loaded) => {
+      textureLoader.load('ASG5/assets/textures/wood/abstract-antique-backdrop-164005.jpg', (loaded) => {
         loaded.encoding = THREE.sRGBEncoding
         scene.background = loaded
         scene.environment = null
       })
       break
     case 'Cubemap':
-      textureLoader.load('assets/sky_cloud_o.jpg', (loaded) => {
+      textureLoader.load('ASG5/assets/sky_cloud_o.jpg', (loaded) => {
         loaded.mapping = THREE.EquirectangularReflectionMapping
         scene.background = loaded
         scene.environment = loaded
