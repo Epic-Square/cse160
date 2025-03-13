@@ -15,7 +15,7 @@ import { VOXMesh } from 'three/examples/jsm/loaders/VOXLoader'
 
 
 const loadModel = () => {
-  return new VOXLoader().loadAsync('./assets/models/vox/biome.vox').then((chunks) => {
+  return new VOXLoader().loadAsync('assets/models/vox/biome.vox').then((chunks) => {
     const group = new THREE.Group()
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i]
