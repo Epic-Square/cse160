@@ -1,116 +1,35 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { bootstrapMeshScene } from './util/standard-scene'
+import { VOXLoader } from 'three/examples/jsm/loaders/VOXLoader'
+import { VOXMesh } from 'three/examples/jsm/loaders/VOXLoader'
+import * as THREE from 'three'
 
-const width = window.innerWidth, height = window.innerHeight;
+// Add Light
+//const color = new THREE.Color(0xffffff);
+//const light = new THREE.DirectionalLight(color);
+//scene.add(light);
 
-// init
 
-const camera = new THREE.PerspectiveCamera( 90, width / height, 0.01, 10 );
-camera.position.z = 2;
 
-const scene = new THREE.Scene();
-
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-const material = new THREE.MeshPhongMaterial({
-    color: 0x00ff00,
-    specular: 0x555555,
-    shininess: 30,
-    transparent: true
-});
-
-const ambientLight = new THREE.AmbientLight(0x00ff00);
-scene.add(ambientLight);
-
-const pointLight = new THREE.PointLight(0xffffff, 75, 100);
-pointLight.position.set(2, 2, 2);
-scene.add(pointLight);
-
-const mesh = new THREE.Mesh( geometry, material );
-scene.add( mesh );
-
-const renderer = new THREE.WebGLRenderer( { antialias: true } );
-renderer.setSize( width, height );
-renderer.setAnimationLoop( animate );
-document.body.appendChild( renderer.domElement );
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.25;
-controls.screenSpacePanning = false;
-controls.maxPolarAngle = Math.PI / 2;
-
-const movement = {
-    forward: false,
-    backward: false,
-    left: false,
-    right: false
-};
-
-document.addEventListener('keydown', (event) => {
-    switch (event.key) {
-        case 'w':
-            movement.forward = true;
-            break;
-        case 's':
-            movement.backward = true;
-            break;
-        case 'a':
-            movement.left = true;
-            break;
-        case 'd':
-            movement.right = true;
-            break;
+const loadModel = () => {
+  return new VOXLoader().loadAsync('/assets/models/vox/biome.vox').then((chunks) => {
+    const group = new THREE.Group()
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i]
+      const mesh = new VOXMesh(chunk)
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      group.add(mesh);
     }
-    
-    //mesh.rotation.y = time / 1000;
-});
-document.addEventListener('keyup', (event) => {
-    switch (event.key) {
-        case 'w':
-            movement.forward = false;
-            break;
-        case 's':
-            movement.backward = false;
-            break;
-        case 'a':
-            movement.left = false;
-            break;
-        case 'd':
-            movement.right = false;
-            break;
-    }
-});
 
-// animation
-
-function animate( time ) {
-
-	//mesh.rotation.x = time / 2000;
-	//mesh.rotation.y = time / 1000;
-
-	renderer.render( scene, camera );
-
+    group.scale.setScalar(0.1);
+    return group;
+  })
 }
 
-function update() {
-    requestAnimationFrame(update);
-
-    const speed = .005;
-    if (movement.forward) {
-        camera.translateZ(-speed);
-    }
-    if (movement.backward) {
-        camera.translateZ(speed);
-    }
-    if (movement.left) {
-        camera.translateX(-speed);
-    }
-    if (movement.right) {
-        camera.translateX(speed);
-    }
-
-    controls.update();
-    renderer.render(scene, camera);
-}
-
-update();
+bootstrapMeshScene({
+  loadMesh: loadModel,
+  hidefloor: true,
+  disableLights: false,
+  fogEnabled: true,
+  hasClouds: true
+}).then()
